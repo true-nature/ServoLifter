@@ -1,6 +1,6 @@
 Configuration	ServoLifter
 STM32CubeMX 	4.3.0
-Date	07/22/2014
+Date	07/23/2014
 MCU	STM32F051R8Tx
 
 
@@ -8,6 +8,8 @@ MCU	STM32F051R8Tx
 PERIPHERALS	MODES	FUNCTIONS	PINS
 SYS	Serial-WireDebug	SYS_SWCLK	PA14
 SYS	Serial-WireDebug	SYS_SWDIO	PA13
+USART1	Asynchronous	USART1_RX	PA10
+USART1	Asynchronous	USART1_TX	PA9
 
 
 
@@ -15,6 +17,8 @@ Pin Nb	PINs	FUNCTIONs
 14	PA0	GPXTI0
 39	PC8	GPIO_Output
 40	PC9	GPIO_Output
+42	PA9	USART1_TX
+43	PA10	USART1_RX
 46	PA13	SYS_SWDIO
 49	PA14	SYS_SWCLK
 
@@ -24,7 +28,7 @@ SOFTWARE PROJECT
 
 Project Settings : 
 Project Name : ServoLifter
-Project Folder : C:\Users\gama\Documents\STM32CubeMX\ServoLifter
+Project Folder : C:\Users\mmi\Documents\STM32Cube\ServoLifter
 Toolchain / IDE : MDK-ARM 4.73
 Firmware Package Name and Version : STM32Cube FW_F0 V1.0.0
 

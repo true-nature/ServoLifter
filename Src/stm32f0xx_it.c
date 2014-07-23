@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    stm32f0xx_it.c
-  * @date    22/07/2014 23:28:35
+  * @date    23/07/2014 10:22:42
   * @brief   Interrupt Service Routines.
   ******************************************************************************
   *
@@ -37,6 +37,8 @@
 #include "stm32f0xx_it.h"
 
 /* External variables --------------------------------------------------------*/
+ 
+extern void xPortSysTickHandler(void);
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -47,8 +49,8 @@
 */
 void SysTick_Handler(void)
 {
+  xPortSysTickHandler();
   HAL_IncTick();
-  HAL_SYSTICK_IRQHandler();
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

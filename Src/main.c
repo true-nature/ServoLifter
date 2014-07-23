@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 22/07/2014 23:28:35
+  * Date               : 23/07/2014 10:22:42
   * Description        : Main program body
   ******************************************************************************
   *
@@ -34,6 +34,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
+#include "cmsis_os.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private variables ---------------------------------------------------------*/
@@ -44,6 +46,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void StartThread(void const * argument);
 
 int main(void)
 {
@@ -65,10 +68,21 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_USART1_UART_Init();
 
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
+
+  /* Code generated for FreeRTOS */
+  /* Create Start thread */
+  osThreadDef(USER_Thread, StartThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  osThreadCreate (osThread(USER_Thread), NULL);
+
+  /* Start scheduler */
+  osKernelStart(NULL, NULL);
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* USER CODE BEGIN 3 */
   /* Infinite loop */
@@ -86,6 +100,7 @@ void SystemClock_Config(void)
 {
 
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_PeriphCLKInitTypeDef PeriphClkInit;
   RCC_OscInitTypeDef RCC_OscInitStruct;
 
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
@@ -103,6 +118,10 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1);
 
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
+  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
+  HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
+
   __SYSCFG_CLK_ENABLE();
 
 }
@@ -110,6 +129,21 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+static void StartThread(void const * argument) {
+
+  /* USER CODE BEGIN 5 */
+ 
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+
+  /* USER CODE END 5 */ 
+
+}
+ 
 
 #ifdef USE_FULL_ASSERT
 
@@ -123,8 +157,8 @@ void SystemClock_Config(void)
 void assert_failed(uint8_t* file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+/* User can add his own implementation to report the file name and line number,
+ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 
 }
