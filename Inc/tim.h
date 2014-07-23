@@ -1,8 +1,9 @@
 /**
   ******************************************************************************
-  * @file    stm32f0xx_it.c
-  * @date    23/07/2014 13:25:07
-  * @brief   Interrupt Service Routines.
+  * File Name          : TIM.h
+  * Date               : 23/07/2014 13:25:06
+  * Description        : This file provides code for the configuration
+  *                      of the TIM instances.
   ******************************************************************************
   *
   * COPYRIGHT(c) 2014 STMicroelectronics
@@ -31,47 +32,33 @@
   *
   ******************************************************************************
   */
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __tim_H
+#define __tim_H
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
-#include "stm32f0xx.h"
-#include "stm32f0xx_it.h"
 
-/* External variables --------------------------------------------------------*/
- 
-extern void xPortSysTickHandler(void);
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
 
-extern UART_HandleTypeDef huart1;
+void MX_TIM2_Init(void);
+void MX_TIM3_Init(void);
 
-/******************************************************************************/
-/*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
-/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+#endif /*__ tim_H */
 
 /**
-* @brief This function handles USART1 global interrupt.
-*/
-void USART1_IRQHandler(void)
-{
-  HAL_NVIC_ClearPendingIRQ(USART1_IRQn);
-  HAL_UART_IRQHandler(&huart1);
-}
+  * @}
+  */
 
 /**
-* @brief This function handles System tick timer.
-*/
-void SysTick_Handler(void)
-{
-  xPortSysTickHandler();
-  HAL_IncTick();
-}
-
-/**
-* @brief This function handles EXTI Line 0 and Line 1 interrupts.
-*/
-void EXTI0_1_IRQHandler(void)
-{
-  HAL_NVIC_ClearPendingIRQ(EXTI0_1_IRQn);
-  
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
-}
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

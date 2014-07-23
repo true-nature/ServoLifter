@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 23/07/2014 10:22:42
+  * Date               : 23/07/2014 13:25:07
   * Description        : Main program body
   ******************************************************************************
   *
@@ -35,6 +35,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
 #include "cmsis_os.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -68,6 +69,8 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_TIM2_Init();
+  MX_TIM3_Init();
   MX_USART1_UART_Init();
 
   /* USER CODE BEGIN 2 */
@@ -108,7 +111,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL12;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
   RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
   HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
