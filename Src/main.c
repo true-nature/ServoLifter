@@ -42,6 +42,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN 0 */
+#include "command.h"
+
+#define BUFFER_COUNT 2
+static uint8_t aTxBuffer[BUFFER_COUNT][MAX_COMMAND_LENGTH + 1];
+static uint8_t idxTxBuf = 0;
+static uint8_t aRxBuffer[BUFFER_COUNT][MAX_COMMAND_LENGTH + 1];
+static uint8_t idxRxBuf = 0;
 
 /* USER CODE END 0 */
 
@@ -130,6 +137,24 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+/**
+  * @brief Tx Transfer completed callbacks
+  * @param huart: uart handle
+  * @retval None
+  */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+}
+
+/**
+  * @brief Rx Transfer completed callbacks
+  * @param huart: uart handle
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+}
 
 /* USER CODE END 4 */
 
