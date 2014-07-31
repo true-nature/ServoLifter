@@ -43,12 +43,11 @@
 
 /* USER CODE BEGIN 0 */
 #include "command.h"
+osMessageQId RcvBoxId;
+osMessageQId CmdBoxId;
 
-#define BUFFER_COUNT 2
-static uint8_t aTxBuffer[BUFFER_COUNT][MAX_COMMAND_LENGTH + 1];
-static uint8_t idxTxBuf = 0;
-static uint8_t aRxBuffer[BUFFER_COUNT][MAX_COMMAND_LENGTH + 1];
-static uint8_t idxRxBuf = 0;
+UserBufferDef UserRxBuffer[RX_BUFFER_COUNT];
+static uint32_t idxRxBuffer = 0;
 
 /* USER CODE END 0 */
 
@@ -81,6 +80,11 @@ int main(void)
   MX_USART1_UART_Init();
 
   /* USER CODE BEGIN 2 */
+ 	osMessageQDef(RcvBox, RX_BUFFER_COUNT, uint32_t);
+	RcvBoxId = osMessageCreate(osMessageQ(RcvBox), NULL);
+
+ 	osMessageQDef(CmdBoxId, MAX_CMD_BUF_COUNT, uint32_t);
+	CmdBoxId = osMessageCreate(osMessageQ(CmdBoxId), NULL);
 
   /* USER CODE END 2 */
 
@@ -154,6 +158,15 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+	osStatus status = osOK;
+  UserRxBuffer[idxRxBuffer].Length = huart->RxXferSize - huart->RxXferCount;
+  status = osMessagePut(RcvBoxId, (uint32_t)&UserRxBuffer[idxRxBuffer], 0);
+	if (status == osOK) {
+		idxRxBuffer = (idxRxBuffer + 1) % RX_BUFFER_COUNT;
+		while (HAL_UART_Receive_IT(huart, UserRxBuffer[idxRxBuffer].Buffer, MAX_COMMAND_LENGTH) == HAL_BUSY) {
+			osDelay(1);
+		}
+	}
 }
 
 /* USER CODE END 4 */

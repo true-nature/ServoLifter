@@ -10,6 +10,18 @@
 #define VERSION_STR "ServoLifter version 0.1"
 
 #define MAX_COMMAND_LENGTH 127
+
+#define RX_BUFFER_COUNT	2
+#define TX_BUFFER_COUNT	2
+typedef struct {
+	volatile uint32_t Length;
+	uint8_t Buffer[MAX_COMMAND_LENGTH + 1];
+} UserBufferDef;
+/* Received Data over USART are stored in this buffer       */
+extern UserBufferDef UserRxBuffer[];
+
+extern osMessageQId  RcvBoxId;
+
 #define MAX_CMD_BUF_COUNT	3
 typedef struct CommandBufferDef {
 	uint32_t Length;
