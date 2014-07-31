@@ -46,7 +46,7 @@
 osMessageQId RcvBoxId;
 osMessageQId CmdBoxId;
 
-UserBufferDef UserRxBuffer[RX_BUFFER_COUNT];
+uint8_t UserRxBuffer[RX_BUFFER_COUNT];
 static uint32_t idxRxBuffer = 0;
 
 /* USER CODE END 0 */
@@ -159,11 +159,10 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	osStatus status = osOK;
-  UserRxBuffer[idxRxBuffer].Length = huart->RxXferSize - huart->RxXferCount;
   status = osMessagePut(RcvBoxId, (uint32_t)&UserRxBuffer[idxRxBuffer], 0);
 	if (status == osOK) {
 		idxRxBuffer = (idxRxBuffer + 1) % RX_BUFFER_COUNT;
-		while (HAL_UART_Receive_IT(huart, UserRxBuffer[idxRxBuffer].Buffer, MAX_COMMAND_LENGTH) == HAL_BUSY) {
+		while (HAL_UART_Receive_IT(huart, &UserRxBuffer[idxRxBuffer], 1) == HAL_BUSY) {
 			osDelay(1);
 		}
 	}
@@ -174,7 +173,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 static void StartThread(void const * argument) {
 
   /* USER CODE BEGIN 5 */
- 
+ 		while (HAL_UART_Receive_IT(&huart1, &UserRxBuffer[idxRxBuffer], 1) == HAL_BUSY) {
+			osDelay(1);
+		}
+
   /* Infinite loop */
   for(;;)
   {

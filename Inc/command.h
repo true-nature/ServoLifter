@@ -11,14 +11,14 @@
 
 #define MAX_COMMAND_LENGTH 127
 
-#define RX_BUFFER_COUNT	2
-#define TX_BUFFER_COUNT	2
+#define RX_BUFFER_COUNT	8
+#define TX_BUFFER_COUNT	8
 typedef struct {
 	volatile uint32_t Length;
 	uint8_t Buffer[MAX_COMMAND_LENGTH + 1];
 } UserBufferDef;
 /* Received Data over USART are stored in this buffer       */
-extern UserBufferDef UserRxBuffer[];
+extern uint8_t UserRxBuffer[];
 
 extern osMessageQId  RcvBoxId;
 
@@ -46,7 +46,7 @@ typedef enum {
 
 extern osMessageQId  CmdBoxId;
 
-//extern void ParseInputChars(UsbUserBufferDef *rxPtr);
+extern void ParseInputChars(uint8_t ch);
 extern void StartMotorThread(void const * argument);
 
 #endif /* __COMMAND_H */

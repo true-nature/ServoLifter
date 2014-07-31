@@ -184,46 +184,41 @@ static void LookupCommand(CommandBufferDef *cmd)
 /**
  * Parse input string from VCP RX port.
  */
-void ParseInputChars(UserBufferDef *rxPtr)
+void ParseInputChars(uint8_t ch)
 {
-	uint8_t *p = &rxPtr->Buffer[0];
-	uint8_t *tail = &rxPtr->Buffer[rxPtr->Length];
 	CommandBufferDef *cmdBufPtr = &CmdBuf[currentCmdIdx];
-	while (p < tail && cmdBufPtr->Length < MAX_COMMAND_LENGTH) {
-		switch (*p) {
-			case '\r':
-				// execute command
-				PutStr(MSG_CRLF);
-			  if (cmdBufPtr->Length > 0) {
-					cmdBufPtr->Buffer[cmdBufPtr->Length] = '\0';
-					LookupCommand(cmdBufPtr);
-					currentCmdIdx = (currentCmdIdx + 1 ) % MAX_CMD_BUF_COUNT;
-					cmdBufPtr = &CmdBuf[currentCmdIdx];
-					cmdBufPtr->Length = 0;
-				}
+	switch (ch) {
+		case '\r':
+			// execute command
+			PutStr(MSG_CRLF);
+			if (cmdBufPtr->Length > 0) {
+				cmdBufPtr->Buffer[cmdBufPtr->Length] = '\0';
+				LookupCommand(cmdBufPtr);
+				currentCmdIdx = (currentCmdIdx + 1 ) % MAX_CMD_BUF_COUNT;
+				cmdBufPtr = &CmdBuf[currentCmdIdx];
+				cmdBufPtr->Length = 0;
+			}
+			break;
+		case '\b':
+			if (cmdBufPtr->Length > 0) {
+				cmdBufPtr->Length--;
+				PutStr("\b \b");
+			}
+			break;
+		case ' ':
+		case '\t':
+			// skip space character at line top
+			if (cmdBufPtr->Length == 0) {
 				break;
-			case '\b':
-				if (cmdBufPtr->Length > 0) {
-					cmdBufPtr->Length--;
-					PutStr("\b \b");
-				}
-				break;
-			case ' ':
-			case '\t':
-				// skip space character at line top
-				if (cmdBufPtr->Length == 0) {
-					break;
-				}
-			default:
-				PutChr(*p);
-				// capitalize
-			  if (*p >= 'a' && *p <= 'z') {
-					*p = *p - ('a' - 'A');
-				}
-				cmdBufPtr->Buffer[cmdBufPtr->Length] = *p;
-				cmdBufPtr->Length++;
-		}
-		p++;
+			}
+		default:
+			PutChr(ch);
+			// capitalize
+			if (ch >= 'a' && ch <= 'z') {
+				ch = ch - ('a' - 'A');
+			}
+			cmdBufPtr->Buffer[cmdBufPtr->Length] = ch;
+			cmdBufPtr->Length++;
 	}
 }
 
