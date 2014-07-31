@@ -159,7 +159,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	osStatus status = osOK;
-  status = osMessagePut(RcvBoxId, (uint32_t)&UserRxBuffer[idxRxBuffer], 0);
+  status = osMessagePut(RcvBoxId, UserRxBuffer[idxRxBuffer], 0);
 	if (status == osOK) {
 		idxRxBuffer = (idxRxBuffer + 1) % RX_BUFFER_COUNT;
 		while (HAL_UART_Receive_IT(huart, &UserRxBuffer[idxRxBuffer], 1) == HAL_BUSY) {
@@ -177,10 +177,16 @@ static void StartThread(void const * argument) {
 			osDelay(1);
 		}
 
+	osEvent evt;
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    evt = osMessageGet(RcvBoxId, osWaitForever);
+		//  EchoBack
+		if (evt.status == osEventMessage) {
+			uint8_t ch = evt.value.v;
+			ParseInputChars(ch);
+		}
   }
 
   /* USER CODE END 5 */ 
