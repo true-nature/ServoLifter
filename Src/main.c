@@ -48,6 +48,7 @@ osMessageQId CmdBoxId;
 
 uint8_t UserRxBuffer[RX_BUFFER_COUNT];
 static uint32_t idxRxBuffer = 0;
+#define UART_RX_TIMEOUT_MS 100
 
 /* USER CODE END 0 */
 
@@ -151,40 +152,21 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
 }
 
-/**
-  * @brief Rx Transfer completed callbacks
-  * @param huart: uart handle
-  * @retval None
-  */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	osStatus status = osOK;
-  status = osMessagePut(RcvBoxId, UserRxBuffer[idxRxBuffer], 0);
-	if (status == osOK) {
-		idxRxBuffer = (idxRxBuffer + 1) % RX_BUFFER_COUNT;
-		while (HAL_UART_Receive_IT(huart, &UserRxBuffer[idxRxBuffer], 1) == HAL_BUSY) {
-			osDelay(1);
-		}
-	}
-}
 
 /* USER CODE END 4 */
 
 static void StartThread(void const * argument) {
 
   /* USER CODE BEGIN 5 */
- 		while (HAL_UART_Receive_IT(&huart1, &UserRxBuffer[idxRxBuffer], 1) == HAL_BUSY) {
-			osDelay(1);
-		}
 
-	osEvent evt;
+	HAL_StatusTypeDef status;
   /* Infinite loop */
   for(;;)
   {
-    evt = osMessageGet(RcvBoxId, osWaitForever);
-		//  EchoBack
-		if (evt.status == osEventMessage) {
-			uint8_t ch = evt.value.v;
+		status = HAL_UART_Receive(&huart1, &UserRxBuffer[idxRxBuffer], 1, UART_RX_TIMEOUT_MS);
+		if (status == HAL_OK) {
+			uint8_t ch = UserRxBuffer[idxRxBuffer];
+			idxRxBuffer = (idxRxBuffer + 1) % RX_BUFFER_COUNT;
 			ParseInputChars(ch);
 		}
   }

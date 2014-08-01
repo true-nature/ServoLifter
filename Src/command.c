@@ -27,8 +27,8 @@ static const uint8_t HexChr[] = "0123456789ABCDEF";
 static void cmdVersion(CommandBufferDef *cmd);
 static void cmdPutOn(CommandBufferDef *cmd);
 static void cmdTakeOff(CommandBufferDef *cmd);
+static void cmdClear(CommandBufferDef *cmd);
 static void cmdHelp(CommandBufferDef *cmd);
-
 
 typedef struct  {
 	const char *const name;
@@ -36,6 +36,7 @@ typedef struct  {
 } CommandOp;
 
 static const CommandOp CmdDic[] = {
+	{"CLEAR", cmdClear},
 	{"PUTON", cmdPutOn},
 	{"TAKEOFF", cmdTakeOff},
 	{"HELP", cmdHelp},
@@ -44,7 +45,7 @@ static const CommandOp CmdDic[] = {
 };
 
 /**
- * Print a string via VCP TX port.
+ * Print a string to console.
  */
 static void PutStr(char *str)
 {
@@ -60,7 +61,7 @@ static void PutStr(char *str)
 }
 
 /**
- * Print a character via VCP TX port.
+ * Print a character to console.
  */
 static void PutChr(char c)
 {
@@ -90,6 +91,13 @@ static void cmdVersion(CommandBufferDef *cmd)
 	PutStr(MSG_CRLF);
 }
 
+/**
+  * Print version number.
+  */
+static void cmdClear(CommandBufferDef *cmd)
+{
+	PutStr("Clear all arms.\r\n");
+}
 
 /**
   * Put a card on the RF antenna.
