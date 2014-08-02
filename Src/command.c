@@ -54,7 +54,7 @@ static void PutStr(char *str)
 	strlcpy((char *)txBufPtr->Buffer, str, MAX_COMMAND_LENGTH);
 	txBufPtr->Length = len;
 	uint16_t retry = 1000;
-	while (HAL_UART_Transmit_IT(&huart1, txBufPtr->Buffer, len) == HAL_BUSY && retry-- > 0) {
+	while (HAL_UART_Transmit(&huart1, txBufPtr->Buffer, len, UART_TX_TIMEOUT_MS) == HAL_BUSY && retry-- > 0) {
 		osDelay(1);
 	}
 	idxTxBuffer = (idxTxBuffer + 1) % TX_BUFFER_COUNT;
@@ -69,7 +69,7 @@ static void PutChr(char c)
 	txBufPtr->Buffer[0] = c;
 	txBufPtr->Length = 1;
 	uint16_t retry = 1000;
-	while (HAL_UART_Transmit_IT(&huart1, txBufPtr->Buffer, 1) == HAL_BUSY && retry-- > 0) {
+	while (HAL_UART_Transmit(&huart1, txBufPtr->Buffer, 1, UART_TX_TIMEOUT_MS) == HAL_BUSY && retry-- > 0) {
 		osDelay(1);
 	}
 	idxTxBuffer = (idxTxBuffer + 1) % TX_BUFFER_COUNT;

@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 23/07/2014 13:25:07
+  * Date               : 02/08/2014 16:07:56
   * Description        : Main program body
   ******************************************************************************
   *
@@ -48,7 +48,6 @@ osMessageQId CmdBoxId;
 
 uint8_t UserRxBuffer[RX_BUFFER_COUNT];
 static uint32_t idxRxBuffer = 0;
-#define UART_RX_TIMEOUT_MS 100
 
 /* USER CODE END 0 */
 
@@ -151,7 +150,6 @@ void SystemClock_Config(void)
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
 }
-
 
 /* USER CODE END 4 */
 

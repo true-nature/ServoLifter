@@ -19,6 +19,8 @@ typedef struct {
 } UserBufferDef;
 /* Received Data over USART are stored in this buffer       */
 extern uint8_t UserRxBuffer[];
+#define UART_RX_TIMEOUT_MS 100
+#define UART_TX_TIMEOUT_MS 100
 
 extern osMessageQId  RcvBoxId;
 
