@@ -35,6 +35,17 @@ typedef struct  {
 	void (*const func)(CommandBufferDef *cmd);
 } CommandOp;
 
+typedef struct {
+	const char *name;
+	uint32_t position;
+	TIM_HandleTypeDef  *htim_base;
+	uint32_t channel;
+} ServoActionDef;
+
+#define SERVO_PUT_DEGREE 0
+#define SERVO_TAKE_DEGREE 100
+#define DEG2PULSE(deg)  ((deg-90)*10+1349)
+
 static const CommandOp CmdDic[] = {
 	{"CLEAR", cmdClear},
 	{"PUTON", cmdPutOn},
@@ -42,6 +53,15 @@ static const CommandOp CmdDic[] = {
 	{"HELP", cmdHelp},
 	{"VERSION", cmdVersion},
 	{NULL, NULL}
+};
+
+static ServoActionDef Servo[] = {
+	{"A", 1349, &htim3, TIM_CHANNEL_1},
+	{"B", 1349, &htim3, TIM_CHANNEL_2},
+	{"C", 1349, &htim3, TIM_CHANNEL_3},
+	{"D", 1349, &htim3, TIM_CHANNEL_4},
+	{"RW", 1349, &htim2, TIM_CHANNEL_4},
+	{NULL, 1349}
 };
 
 /**
@@ -91,6 +111,47 @@ static void cmdVersion(CommandBufferDef *cmd)
 	PutStr(MSG_CRLF);
 }
 
+static int16_t name2servoIndex(char c)
+{
+	int16_t index = -1;
+	ServoActionDef *p = Servo;
+	while (p->name != NULL)
+	{
+		if (p->name[0] == c) {
+			index = (p - Servo);
+			break;
+		}
+		p++;
+	}
+	return index;
+}
+
+/**
+  * @param  idxSrv: Index of servo motor.
+  * @param  start: Start postion.
+  * @param  end: End position.
+  */
+static void moveServo(int16_t index, uint32_t end)
+{
+	ServoActionDef *servo = &Servo[index];
+	 static TIM_OC_InitTypeDef sConfigOC;
+	uint32_t step = (end >= servo->position ? 1 : -1);
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	for (;;) {
+		sConfigOC.Pulse = servo->position;
+		HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
+		HAL_TIM_PWM_Start(servo->htim_base, servo->channel);
+		 if (servo->position == end) break;
+		servo->position += step;
+		//osDelay(1);
+		osDelay(0);
+	};
+
+	HAL_TIM_PWM_Stop(servo->htim_base, servo->channel);
+}
+
 /**
   * Print version number.
   */
@@ -108,7 +169,14 @@ static void cmdPutOn(CommandBufferDef *cmd)
 {
 	if (cmd->Arg == NULL) {
 		PutStr(MSG_EMPTY_ARGUMENT);
+		return;
 	}
+	int16_t index = name2servoIndex(cmd->Arg[0]);
+	if (index < 0) {
+		PutStr(MAG_INVALID_PARAMETER);
+		return;
+	}
+	moveServo(index, DEG2PULSE(SERVO_PUT_DEGREE));
 }
 
 /**
@@ -120,7 +188,14 @@ static void cmdTakeOff(CommandBufferDef *cmd)
 {
 	if (cmd->Arg == NULL) {
 		PutStr(MSG_EMPTY_ARGUMENT);
+		return;
 	}
+	int16_t index = name2servoIndex(cmd->Arg[0]);
+	if (index < 0) {
+		PutStr(MAG_INVALID_PARAMETER);
+		return;
+	}
+	moveServo(index, DEG2PULSE(SERVO_TAKE_DEGREE));
 }
 
 /**
@@ -134,11 +209,9 @@ void StartMotorThread(void const * argument)
 {
 	osEvent evt;
 	CommandBufferDef *cmdBuf;
-	osDelay(599);
 	cmdVersion(NULL);
 	PutStr("OK\r\n");
-//	currServoPos = 1350;
-//	MoveServo(PWM_ARM_UP);
+//	cmdClear();
   /* Infinite loop */
   for(;;)
   {
