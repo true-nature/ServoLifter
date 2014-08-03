@@ -48,6 +48,7 @@ osMessageQId CmdBoxId;
 
 uint8_t UserRxBuffer[RX_BUFFER_COUNT];
 static uint32_t idxRxBuffer = 0;
+#define RX_EVENT_TIMEOUT_MS 100
 
 /* USER CODE END 0 */
 
@@ -59,6 +60,11 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+ 	osMessageQDef(RcvBox, RX_BUFFER_COUNT, uint32_t);
+	RcvBoxId = osMessageCreate(osMessageQ(RcvBox), NULL);
+
+ 	osMessageQDef(CmdBoxId, MAX_CMD_BUF_COUNT, uint32_t);
+	CmdBoxId = osMessageCreate(osMessageQ(CmdBoxId), NULL);
 
   /* USER CODE END 1 */
 
@@ -80,11 +86,6 @@ int main(void)
   MX_USART1_UART_Init();
 
   /* USER CODE BEGIN 2 */
- 	osMessageQDef(RcvBox, RX_BUFFER_COUNT, uint32_t);
-	RcvBoxId = osMessageCreate(osMessageQ(RcvBox), NULL);
-
- 	osMessageQDef(CmdBoxId, MAX_CMD_BUF_COUNT, uint32_t);
-	CmdBoxId = osMessageCreate(osMessageQ(CmdBoxId), NULL);
 
   osThreadDef(MOTOR_Thread, StartMotorThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   osThreadCreate (osThread(MOTOR_Thread), NULL);
@@ -168,7 +169,7 @@ static void StartThread(void const * argument) {
   osEvent evt;
   for(;;)
   {
-    evt = osMessageGet(RcvBoxId, osWaitForever);
+    evt = osMessageGet(RcvBoxId, RX_EVENT_TIMEOUT_MS);
 		// EchoBack
 		if (evt.status == osEventMessage) {
 			uint8_t c = (uint8_t)(0xFF & evt.value.v);
