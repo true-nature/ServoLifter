@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-#Sat Aug 02 16:07:46 JST 2014
+#Sun Aug 03 13:31:59 JST 2014
 FREERTOS.IPParameters=configCHECK_FOR_STACK_OVERFLOW,configUSE_MALLOC_FAILED_HOOK
 FREERTOS.configCHECK_FOR_STACK_OVERFLOW=1
 FREERTOS.configUSE_MALLOC_FAILED_HOOK=1
@@ -35,6 +35,7 @@ Mcu.PinsNb=15
 Mcu.UserName=STM32F051R8Tx
 NVIC.EXTI0_1_IRQn=true\:3\:0
 NVIC.SysTick_IRQn=true\:0\:0
+NVIC.USART1_IRQn=true\:3\:0
 PA0.GPIOParameters=GPIO_Label,GPIO_ModeDefaultEXTI,GPIO_PuPd
 PA0.GPIO_Label=B1 [Blue PushButton]
 PA0.GPIO_ModeDefaultEXTI=GPIO_MODE_EVT_RISING
@@ -60,14 +61,14 @@ PA9.Mode=Asynchronous
 PA9.Signal=USART1_TX
 PB0.Signal=S_TIM3_CH3
 PB1.Signal=S_TIM3_CH4
-PC8.GPIOParameters=GPIO_ModeDefaultOutputPP,GPIO_Label,GPIO_Speed,GPIO_PuPd
+PC8.GPIOParameters=GPIO_Label,GPIO_ModeDefaultOutputPP,GPIO_Speed,GPIO_PuPd
 PC8.GPIO_Label=LD4 [Blue Led]
 PC8.GPIO_ModeDefaultOutputPP=GPIO_MODE_OUTPUT_PP
 PC8.GPIO_PuPd=GPIO_NOPULL
 PC8.GPIO_Speed=GPIO_SPEED_LOW
 PC8.Locked=true
 PC8.Signal=GPIO_Output
-PC9.GPIOParameters=GPIO_ModeDefaultOutputPP,GPIO_Label,GPIO_Speed,GPIO_PuPd
+PC9.GPIOParameters=GPIO_Label,GPIO_ModeDefaultOutputPP,GPIO_Speed,GPIO_PuPd
 PC9.GPIO_Label=LD3 [Green Led]
 PC9.GPIO_ModeDefaultOutputPP=GPIO_MODE_OUTPUT_PP
 PC9.GPIO_PuPd=GPIO_NOPULL

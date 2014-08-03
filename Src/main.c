@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 02/08/2014 16:07:56
+  * Date               : 03/08/2014 13:32:04
   * Description        : Main program body
   ******************************************************************************
   *
@@ -86,6 +86,8 @@ int main(void)
  	osMessageQDef(CmdBoxId, MAX_CMD_BUF_COUNT, uint32_t);
 	CmdBoxId = osMessageCreate(osMessageQ(CmdBoxId), NULL);
 
+  osThreadDef(MOTOR_Thread, StartMotorThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  osThreadCreate (osThread(MOTOR_Thread), NULL);
   /* USER CODE END 2 */
 
   /* Code generated for FreeRTOS */
@@ -151,22 +153,42 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
 }
 
+/**
+  * @brief Rx Transfer completed callbacks
+  * @param huart: uart handle
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  osStatus status = osOK;
+  status = osMessagePut(RcvBoxId, (uint32_t)UserRxBuffer[idxRxBuffer], 0);
+	if (status == osOK) {
+		idxRxBuffer = (idxRxBuffer + 1) % RX_BUFFER_COUNT;
+		while (HAL_UART_Receive_IT(huart, &UserRxBuffer[idxRxBuffer], 1) == HAL_BUSY) {
+			osDelay(1);
+		}
+	}
+}
+
 /* USER CODE END 4 */
 
 static void StartThread(void const * argument) {
 
   /* USER CODE BEGIN 5 */
 
-	HAL_StatusTypeDef status;
+	while (HAL_UART_Receive_IT(&huart1, &UserRxBuffer[idxRxBuffer], 1) == HAL_BUSY) {
+		osDelay(1);
+	}
   /* Infinite loop */
+  osEvent evt;
   for(;;)
   {
-		status = HAL_UART_Receive(&huart1, &UserRxBuffer[idxRxBuffer], 1, UART_RX_TIMEOUT_MS);
-		if (status == HAL_OK) {
-			uint8_t ch = UserRxBuffer[idxRxBuffer];
-			idxRxBuffer = (idxRxBuffer + 1) % RX_BUFFER_COUNT;
-			ParseInputChars(ch);
-		}
+    evt = osMessageGet(RcvBoxId, osWaitForever);
+	// EchoBack
+	if (evt.status == osEventMessage) {
+		uint8_t c = (uint8_t)(0xFF & evt.value.v);
+		ParseInputChars(c);
+	}
   }
 
   /* USER CODE END 5 */ 

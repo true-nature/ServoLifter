@@ -130,6 +130,24 @@ static void cmdHelp(CommandBufferDef *cmd)
 {
 	PutStr("Show command help.\r\n");
 }
+void StartMotorThread(void const * argument)
+{
+	osEvent evt;
+	CommandBufferDef *cmdBuf;
+//	currServoPos = 1350;
+//	MoveServo(PWM_ARM_UP);
+  /* Infinite loop */
+  for(;;)
+  {
+    evt = osMessageGet(CmdBoxId, osWaitForever);
+		if (evt.status == osEventMessage) {
+			cmdBuf = evt.value.p;
+			cmdBuf->func(cmdBuf);
+			PutStr("OK\r\n");
+		}
+		//check received length, read UserRxBufferFS
+  }
+}
 
 /**
   * Split command and argument.

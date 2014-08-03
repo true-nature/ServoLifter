@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    stm32f0xx_it.c
-  * @date    02/08/2014 16:07:55
+  * @date    03/08/2014 13:32:03
   * @brief   Interrupt Service Routines.
   ******************************************************************************
   *
@@ -40,6 +40,8 @@
  
 extern void xPortSysTickHandler(void);
 
+extern UART_HandleTypeDef huart1;
+
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -61,6 +63,15 @@ void SysTick_Handler(void)
 {
   xPortSysTickHandler();
   HAL_IncTick();
+}
+
+/**
+* @brief This function handles USART1 global interrupt.
+*/
+void USART1_IRQHandler(void)
+{
+  HAL_NVIC_ClearPendingIRQ(USART1_IRQn);
+  HAL_UART_IRQHandler(&huart1);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
