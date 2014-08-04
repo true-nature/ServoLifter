@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    stm32f0xx_it.c
-  * @date    03/08/2014 13:32:03
+  * @date    04/08/2014 22:21:04
   * @brief   Interrupt Service Routines.
   ******************************************************************************
   *
@@ -47,13 +47,12 @@ extern UART_HandleTypeDef huart1;
 /******************************************************************************/
 
 /**
-* @brief This function handles EXTI Line 0 and Line 1 interrupts.
+* @brief This function handles USART1 global interrupt.
 */
-void EXTI0_1_IRQHandler(void)
+void USART1_IRQHandler(void)
 {
-  HAL_NVIC_ClearPendingIRQ(EXTI0_1_IRQn);
-  
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+  HAL_NVIC_ClearPendingIRQ(USART1_IRQn);
+  HAL_UART_IRQHandler(&huart1);
 }
 
 /**
@@ -66,12 +65,13 @@ void SysTick_Handler(void)
 }
 
 /**
-* @brief This function handles USART1 global interrupt.
+* @brief This function handles EXTI Line 0 and Line 1 interrupts.
 */
-void USART1_IRQHandler(void)
+void EXTI0_1_IRQHandler(void)
 {
-  HAL_NVIC_ClearPendingIRQ(USART1_IRQn);
-  HAL_UART_IRQHandler(&huart1);
+  HAL_NVIC_ClearPendingIRQ(EXTI0_1_IRQn);
+  
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -36,7 +36,7 @@ typedef struct  {
 } CommandOp;
 
 typedef struct {
-	const char *name;
+	char *name;
 	uint32_t position;
 	TIM_HandleTypeDef  *htim_base;
 	uint32_t channel;
@@ -163,11 +163,11 @@ static void moveServo(int16_t index, uint32_t end)
 static void cmdClear(CommandBufferDef *cmd)
 {
 	static TIM_OC_InitTypeDef sConfigOC;
-	uint32_t pulse = SERVO_PUT_DEGREE;
+	uint32_t pulse = DEG2PULSE(SERVO_PUT_DEGREE);
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	while (pulse <= SERVO_TAKE_DEGREE) {
+	while (pulse <= DEG2PULSE(SERVO_TAKE_DEGREE)) {
 		for (int16_t index = 0; index < 5; index++) {
 			ServoActionDef *servo = &Servo[index];
 			if (servo->position >= pulse) { continue; }
@@ -176,6 +176,7 @@ static void cmdClear(CommandBufferDef *cmd)
 			HAL_TIM_PWM_Start(servo->htim_base, servo->channel);
 			osDelay(1);
 		}
+		pulse++;
 	}
 	for (int16_t index = 0; index < 5; index++) {
 		ServoActionDef *servo = &Servo[index];
@@ -218,7 +219,6 @@ static int16_t PopBeam()
 	}
 	else
 	{
-		PutStr("Beam stack underflow!\r\n");
 		return -1;
 	}
 }
@@ -266,6 +266,9 @@ static void cmdTakeOff(CommandBufferDef *cmd)
 		PutStr(MSG_BEAM_EMPTY);
 		return;
 	}
+	PutStr("TAKEOFF ");
+	PutStr(Servo[index].name);
+	PutStr("\r\n");
 	moveServo(index, DEG2PULSE(SERVO_TAKE_DEGREE));
 }
 
@@ -280,9 +283,10 @@ void StartMotorThread(void const * argument)
 {
 	osEvent evt;
 	CommandBufferDef *cmdBuf;
+	osDelay(500);
 	cmdVersion(NULL);
-	PutStr("OK\r\n");
 	cmdClear(NULL);
+	PutStr("OK\r\n");
   /* Infinite loop */
   for(;;)
   {
