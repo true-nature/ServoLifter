@@ -13,7 +13,9 @@
 
 #define MSG_CRLF "\r\n"
 #define MSG_EMPTY_ARGUMENT "Empty argument.\r\n"
-#define MAG_INVALID_PARAMETER "Invalid parameter.\r\n"
+#define MSG_INVALID_PARAMETER "Invalid parameter.\r\n"
+#define MSG_ALRELADY_PUT "Already put on.\r\n"
+#define MSG_BEAM_EMPTY "No beam is put on.\r\n"
 
 /* Send Data over USART are stored in this buffer       */
 static UserBufferDef UserTxBuffer[TX_BUFFER_COUNT];
@@ -21,8 +23,6 @@ static volatile uint16_t idxTxBuffer = 0;
 
 static CommandBufferDef CmdBuf[MAX_CMD_BUF_COUNT];
 static uint16_t currentCmdIdx;
-
-static const uint8_t HexChr[] = "0123456789ABCDEF";
 
 static void cmdVersion(CommandBufferDef *cmd);
 static void cmdPutOn(CommandBufferDef *cmd);
@@ -56,13 +56,17 @@ static const CommandOp CmdDic[] = {
 };
 
 static ServoActionDef Servo[] = {
+	{"R", 1349, &htim2, TIM_CHANNEL_4},
 	{"A", 1349, &htim3, TIM_CHANNEL_1},
 	{"B", 1349, &htim3, TIM_CHANNEL_2},
 	{"C", 1349, &htim3, TIM_CHANNEL_3},
 	{"D", 1349, &htim3, TIM_CHANNEL_4},
-	{"RW", 1349, &htim2, TIM_CHANNEL_4},
 	{NULL, 1349}
 };
+
+//
+static int16_t BeamStack[6];
+static int16_t BeamPtr;
 
 /**
  * Print a string to console.
@@ -95,12 +99,13 @@ static void PutChr(char c)
 	idxTxBuffer = (idxTxBuffer + 1) % TX_BUFFER_COUNT;
 }
 
-static void PutUint16(uint16_t value)
-{
-	for (int s = 12; s >= 0; s -= 4) {
-		PutChr(HexChr[0x0F & (value >> s)]);
-	}
-}
+//static void PutUint16(uint16_t value)
+//{
+//  static const uint8_t HexChr[] = "0123456789ABCDEF";
+//	for (int s = 12; s >= 0; s -= 4) {
+//		PutChr(HexChr[0x0F & (value >> s)]);
+//	}
+//}
 
 /**
   * Print version number.
@@ -134,7 +139,7 @@ static int16_t name2servoIndex(char c)
 static void moveServo(int16_t index, uint32_t end)
 {
 	ServoActionDef *servo = &Servo[index];
-	 static TIM_OC_InitTypeDef sConfigOC;
+	static TIM_OC_InitTypeDef sConfigOC;
 	uint32_t step = (end >= servo->position ? 1 : -1);
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
@@ -153,11 +158,69 @@ static void moveServo(int16_t index, uint32_t end)
 }
 
 /**
-  * Print version number.
+  * Clear all arms.
   */
 static void cmdClear(CommandBufferDef *cmd)
 {
-	PutStr("Clear all arms.\r\n");
+	static TIM_OC_InitTypeDef sConfigOC;
+	uint32_t pulse = SERVO_PUT_DEGREE;
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	while (pulse <= SERVO_TAKE_DEGREE) {
+		for (int16_t index = 0; index < 5; index++) {
+			ServoActionDef *servo = &Servo[index];
+			if (servo->position >= pulse) { continue; }
+			sConfigOC.Pulse = pulse;
+			HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
+			HAL_TIM_PWM_Start(servo->htim_base, servo->channel);
+			osDelay(1);
+		}
+	}
+	for (int16_t index = 0; index < 5; index++) {
+		ServoActionDef *servo = &Servo[index];
+		HAL_TIM_PWM_Stop(servo->htim_base, servo->channel);
+	}
+	BeamPtr = 0;
+}
+
+static uint8_t IsBeamPutOn(int16_t index)
+{
+	uint8_t result = 0;
+	for (int p = 0; p < BeamPtr; p++) 
+	{
+		if (BeamStack[p] == index) 
+		{
+			result = 1;
+			break;
+		}
+	}
+	return result;
+}
+
+static void PushBeam(int16_t index)
+{
+	if (BeamPtr < 5) 
+	{
+		BeamStack[BeamPtr++] = index;
+	}
+	else
+	{
+		PutStr("Beam stack overflow!\r\n");
+	}
+}
+
+static int16_t PopBeam()
+{
+	if (BeamPtr > 0)
+	{
+		return BeamStack[--BeamPtr];
+	}
+	else
+	{
+		PutStr("Beam stack underflow!\r\n");
+		return -1;
+	}
 }
 
 /**
@@ -172,27 +235,35 @@ static void cmdPutOn(CommandBufferDef *cmd)
 		return;
 	}
 	int16_t index = name2servoIndex(cmd->Arg[0]);
-	if (index < 0) {
-		PutStr(MAG_INVALID_PARAMETER);
-		return;
+	if (!IsBeamPutOn(index)) 
+	{
+		if (index < 0) {
+			PutStr(MSG_INVALID_PARAMETER);
+			return;
+		}
+		moveServo(index, DEG2PULSE(SERVO_PUT_DEGREE));
+		PushBeam(index);
 	}
-	moveServo(index, DEG2PULSE(SERVO_PUT_DEGREE));
+	else
+	{
+		PutStr(MSG_ALRELADY_PUT);
+	}
 }
 
 /**
   * Take a card off from the RF antenna.
 	*
-	* TAKEOFF <A/B/C/D>
+	* TAKEOFF
   */
 static void cmdTakeOff(CommandBufferDef *cmd)
 {
-	if (cmd->Arg == NULL) {
-		PutStr(MSG_EMPTY_ARGUMENT);
+	if (cmd->Arg != NULL) {
+		PutStr(MSG_INVALID_PARAMETER);
 		return;
 	}
-	int16_t index = name2servoIndex(cmd->Arg[0]);
+	int16_t index = PopBeam();
 	if (index < 0) {
-		PutStr(MAG_INVALID_PARAMETER);
+		PutStr(MSG_BEAM_EMPTY);
 		return;
 	}
 	moveServo(index, DEG2PULSE(SERVO_TAKE_DEGREE));
@@ -211,7 +282,7 @@ void StartMotorThread(void const * argument)
 	CommandBufferDef *cmdBuf;
 	cmdVersion(NULL);
 	PutStr("OK\r\n");
-//	cmdClear();
+	cmdClear(NULL);
   /* Infinite loop */
   for(;;)
   {
