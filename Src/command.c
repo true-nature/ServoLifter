@@ -28,6 +28,7 @@ static void cmdVersion(CommandBufferDef *cmd);
 static void cmdPutOn(CommandBufferDef *cmd);
 static void cmdTakeOff(CommandBufferDef *cmd);
 static void cmdClear(CommandBufferDef *cmd);
+static void cmdNeutral(CommandBufferDef *cmd);
 static void cmdHelp(CommandBufferDef *cmd);
 
 typedef struct  {
@@ -42,9 +43,10 @@ typedef struct {
 	uint32_t channel;
 } ServoActionDef;
 
-#define SERVO_PUT_DEGREE 0
-#define SERVO_TAKE_DEGREE 100
-#define DEG2PULSE(deg)  ((deg-90)*10+1349)
+#define SERVO_PUT_DEGREE (-60)
+#define SERVO_TAKE_DEGREE 60
+#define SERVO_NEUTRAL_DEGREE 0
+#define DEG2PULSE(deg)  (1349+10*(deg))
 
 static const CommandOp CmdDic[] = {
 	{"CLEAR", cmdClear},
@@ -52,6 +54,7 @@ static const CommandOp CmdDic[] = {
 	{"TAKEOFF", cmdTakeOff},
 	{"HELP", cmdHelp},
 	{"VERSION", cmdVersion},
+	{"NEUTRAL", cmdNeutral},
 	{NULL, NULL}
 };
 
@@ -157,32 +160,56 @@ static void moveServo(int16_t index, uint32_t end)
 	HAL_TIM_PWM_Stop(servo->htim_base, servo->channel);
 }
 
-/**
-  * Clear all arms.
-  */
-static void cmdClear(CommandBufferDef *cmd)
+static void MoveAll(uint32_t dest)
 {
 	static TIM_OC_InitTypeDef sConfigOC;
 	uint32_t pulse = DEG2PULSE(SERVO_PUT_DEGREE);
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	while (pulse <= DEG2PULSE(SERVO_TAKE_DEGREE)) {
+	while (pulse < dest) {
 		for (int16_t index = 0; index < 5; index++) {
 			ServoActionDef *servo = &Servo[index];
 			if (servo->position >= pulse) { continue; }
 			sConfigOC.Pulse = pulse;
 			HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
 			HAL_TIM_PWM_Start(servo->htim_base, servo->channel);
-			osDelay(1);
+			osDelay(19);
 		}
-		pulse++;
+		pulse += 5;
+	}
+	// fix overshoot
+	while (pulse > dest) {
+		for (int16_t index = 0; index < 5; index++) {
+			ServoActionDef *servo = &Servo[index];
+			if (servo->position <= pulse) { continue; }
+			sConfigOC.Pulse = pulse;
+			HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
+			HAL_TIM_PWM_Start(servo->htim_base, servo->channel);
+			osDelay(19);
+		}
+		pulse--;
 	}
 	for (int16_t index = 0; index < 5; index++) {
 		ServoActionDef *servo = &Servo[index];
 		HAL_TIM_PWM_Stop(servo->htim_base, servo->channel);
 	}
 	BeamPtr = 0;
+}
+/**
+  * Clear all arms.
+  */
+static void cmdClear(CommandBufferDef *cmd)
+{
+	MoveAll(DEG2PULSE(SERVO_TAKE_DEGREE));
+}
+
+/**
+  * Move arms to neutral position of servo.
+  */
+static void cmdNeutral(CommandBufferDef *cmd)
+{
+	MoveAll(DEG2PULSE(SERVO_NEUTRAL_DEGREE));
 }
 
 static uint8_t IsBeamPutOn(int16_t index)
@@ -277,7 +304,12 @@ static void cmdTakeOff(CommandBufferDef *cmd)
   */
 static void cmdHelp(CommandBufferDef *cmd)
 {
-	PutStr("Show command help.\r\n");
+	PutStr("HELP\r\n  Show command help.\r\n");
+	PutStr("VERSION\r\n  Show version string.\r\n");
+	PutStr("PUTON <A|B|C|D|R>\r\n  Put a card or the R/W to the target.\r\n");
+	PutStr("TAKEOFF\r\n  Take a card or the R/W from the target.\r\n");
+	PutStr("CLEAR\r\n  Take all cards and the R/W from the target.\r\n");
+	PutStr("NEUTRAL\r\n  Move all servo motors to neutral position.\r\n");
 }
 void StartMotorThread(void const * argument)
 {
