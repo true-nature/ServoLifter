@@ -150,7 +150,7 @@ static void moveServo(int16_t index, uint32_t end)
 	for (;;) {
 		sConfigOC.Pulse = servo->position;
 		HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
-		HAL_TIM_PWM_Start(servo->htim_base, servo->channel);
+		HAL_TIM_PWM_Start_IT(servo->htim_base, servo->channel);
 		 if (servo->position == end) break;
 		servo->position += step;
 		//osDelay(1);
@@ -162,25 +162,26 @@ static void moveServo(int16_t index, uint32_t end)
 
 static void MoveAll(uint32_t dest)
 {
+	moveServo(0, dest);
 	static TIM_OC_InitTypeDef sConfigOC;
 	uint32_t pulse = DEG2PULSE(SERVO_PUT_DEGREE);
-  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	while (pulse < dest) {
-		for (int16_t index = 0; index < 5; index++) {
+		for (int16_t index = 1; index < 5; index++) {
 			ServoActionDef *servo = &Servo[index];
 			if (servo->position >= pulse) { continue; }
 			sConfigOC.Pulse = pulse;
 			HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
-			HAL_TIM_PWM_Start(servo->htim_base, servo->channel);
+			HAL_TIM_PWM_Start_IT(servo->htim_base, servo->channel);
 			osDelay(19);
 		}
 		pulse += 5;
 	}
 	// fix overshoot
 	while (pulse > dest) {
-		for (int16_t index = 0; index < 5; index++) {
+		for (int16_t index = 1; index < 5; index++) {
 			ServoActionDef *servo = &Servo[index];
 			if (servo->position <= pulse) { continue; }
 			sConfigOC.Pulse = pulse;
@@ -428,6 +429,23 @@ void ParseInputChars(uint8_t ch)
 			}
 			cmdBufPtr->Buffer[cmdBufPtr->Length] = ch;
 			cmdBufPtr->Length++;
+	}
+}
+
+/**
+  * @brief  PWM Pulse finished callback in non blocking mode 
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+{
+  /* NOTE : This function Should not be modified, when the callback is needed,
+            the __HAL_TIM_PWM_PulseFinishedCallback could be implemented in the user file
+   */
+	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
+	{
+		uint32_t compare = __HAL_TIM_GetCompare(htim, TIM_CHANNEL_2);
+		__HAL_TIM_SetCompare(htim, TIM_CHANNEL_2, compare);
 	}
 }
 

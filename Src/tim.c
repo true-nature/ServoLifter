@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : TIM.c
-  * Date               : 06/08/2014 13:03:30
+  * Date               : 07/08/2014 05:55:57
   * Description        : This file provides code for the configuration
   *                      of the TIM instances.
   ******************************************************************************
@@ -133,6 +133,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /* Peripheral interrupt init*/
+    HAL_NVIC_SetPriority(TIM2_IRQn, 2, 0);
+    HAL_NVIC_EnableIRQ(TIM2_IRQn);
   }
   else if(htim_base->Instance==TIM3)
   {
@@ -159,6 +162,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     GPIO_InitStruct.Alternate = GPIO_AF1_TIM3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+    /* Peripheral interrupt init*/
+    HAL_NVIC_SetPriority(TIM3_IRQn, 2, 0);
+    HAL_NVIC_EnableIRQ(TIM3_IRQn);
   }
 }
 
@@ -175,6 +181,8 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_3);
 
+    /* Peripheral interrupt Deinit*/
+    HAL_NVIC_DisableIRQ(TIM2_IRQn);
   }
   else if(htim_base->Instance==TIM3)
   {
@@ -191,6 +199,8 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
 
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_0|GPIO_PIN_1);
 
+    /* Peripheral interrupt Deinit*/
+    HAL_NVIC_DisableIRQ(TIM3_IRQn);
   }
 } 
 

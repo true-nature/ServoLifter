@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-#Wed Aug 06 13:03:28 JST 2014
+#Thu Aug 07 05:55:51 JST 2014
 FREERTOS.IPParameters=configUSE_MALLOC_FAILED_HOOK,configCHECK_FOR_STACK_OVERFLOW
 FREERTOS.configCHECK_FOR_STACK_OVERFLOW=1
 FREERTOS.configUSE_MALLOC_FAILED_HOOK=1
@@ -35,6 +35,8 @@ Mcu.PinsNb=15
 Mcu.UserName=STM32F051R8Tx
 NVIC.EXTI0_1_IRQn=true\:3\:0
 NVIC.SysTick_IRQn=true\:0\:0
+NVIC.TIM2_IRQn=true\:2\:0
+NVIC.TIM3_IRQn=true\:2\:0
 NVIC.USART1_IRQn=true\:3\:0
 PA0.GPIOParameters=GPIO_PuPd,GPIO_Label,GPIO_ModeDefaultEXTI
 PA0.GPIO_Label=B1 [Blue PushButton]
