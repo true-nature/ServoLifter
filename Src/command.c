@@ -17,6 +17,7 @@
 #define MSG_ALRELADY_PUT "Already put on.\r\n"
 #define MSG_BEAM_EMPTY "No beam is put on.\r\n"
 
+
 /* Send Data over USART are stored in this buffer       */
 static UserBufferDef UserTxBuffer[TX_BUFFER_COUNT];
 static volatile uint16_t idxTxBuffer = 0;
@@ -69,7 +70,6 @@ static ServoActionDef Servo[] = {
 };
 #define NUM_OF_SERVO 5
 
-//
 static int16_t BeamStack[NUM_OF_SERVO];
 static int16_t BeamPtr;
 
@@ -222,6 +222,7 @@ static void moveServo(int16_t index, uint32_t goal)
 //  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 //	sConfigOC.Pulse = servo->position;
 //	HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);
 	HAL_TIM_PWM_Start_IT(servo->htim_base, servo->channel);
 	while (servo->position != goal)
 	{
@@ -234,6 +235,7 @@ static void moveServo(int16_t index, uint32_t goal)
 	HAL_TIM_PWM_Start(servo->htim_base, servo->channel);
 	osDelay(5 * SERVO_PERIOD_MS);
 	HAL_TIM_PWM_Stop(servo->htim_base, servo->channel);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
 	osDelay(SERVO_PERIOD_MS);
 }
 
@@ -497,13 +499,18 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 	{
 		if (srv->position < srv->goal)
 		{
-			srv->position +=  (srv->goal - srv->position > 10 ? 5 : 1);
+			srv->position +=  (srv->goal - srv->position > 8 ? 4 : 1);
 		}
 		else if (srv->position > srv->goal)
 		{
-			srv->position -= (srv->position - srv->goal > 10 ? 5 : 1);
+			srv->position -= (srv->position - srv->goal > 8 ? 4 : 1);
 		}
-		__HAL_TIM_SetCompare(htim, srv->channel, srv->position);
+		// blink LEDs
+		if ((srv->position >> 4) & 1)
+		{
+			__HAL_TIM_SetCompare(htim, srv->channel, srv->position);
+			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8|GPIO_PIN_9);
+		}
 	}
 }
 
