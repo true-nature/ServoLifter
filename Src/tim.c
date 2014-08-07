@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : TIM.c
-  * Date               : 07/08/2014 14:36:48
+  * Date               : 07/08/2014 21:44:47
   * Description        : This file provides code for the configuration
   *                      of the TIM instances.
   ******************************************************************************
@@ -134,7 +134,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* Peripheral interrupt init*/
-    HAL_NVIC_SetPriority(TIM2_IRQn, 2, 0);
+    HAL_NVIC_SetPriority(TIM2_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(TIM2_IRQn);
   }
   else if(htim_base->Instance==TIM3)
@@ -163,7 +163,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* Peripheral interrupt init*/
-    HAL_NVIC_SetPriority(TIM3_IRQn, 2, 0);
+    HAL_NVIC_SetPriority(TIM3_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(TIM3_IRQn);
   }
 }
