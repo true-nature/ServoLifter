@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-#Thu Aug 07 21:47:11 JST 2014
+#Thu Aug 07 21:54:01 JST 2014
 FREERTOS.IPParameters=configCHECK_FOR_STACK_OVERFLOW,configUSE_MALLOC_FAILED_HOOK
 FREERTOS.configCHECK_FOR_STACK_OVERFLOW=1
 FREERTOS.configUSE_MALLOC_FAILED_HOOK=1
@@ -91,14 +91,14 @@ PB1.GPIO_ModeDefaultPP=GPIO_MODE_AF_PP
 PB1.GPIO_PuPd=GPIO_NOPULL
 PB1.GPIO_Speed=GPIO_SPEED_LOW
 PB1.Signal=S_TIM3_CH4
-PC8.GPIOParameters=GPIO_Label,GPIO_ModeDefaultOutputPP,GPIO_Speed,GPIO_PuPd
+PC8.GPIOParameters=GPIO_ModeDefaultOutputPP,GPIO_Label,GPIO_Speed,GPIO_PuPd
 PC8.GPIO_Label=LD4 [Blue Led]
 PC8.GPIO_ModeDefaultOutputPP=GPIO_MODE_OUTPUT_PP
 PC8.GPIO_PuPd=GPIO_NOPULL
 PC8.GPIO_Speed=GPIO_SPEED_LOW
 PC8.Locked=true
 PC8.Signal=GPIO_Output
-PC9.GPIOParameters=GPIO_Label,GPIO_ModeDefaultOutputPP,GPIO_Speed,GPIO_PuPd
+PC9.GPIOParameters=GPIO_ModeDefaultOutputPP,GPIO_Label,GPIO_Speed,GPIO_PuPd
 PC9.GPIO_Label=LD3 [Green Led]
 PC9.GPIO_ModeDefaultOutputPP=GPIO_MODE_OUTPUT_PP
 PC9.GPIO_PuPd=GPIO_NOPULL

@@ -48,7 +48,7 @@ typedef struct {
 #define SERVO_PUT_DEGREE (45)
 #define SERVO_TAKE_DEGREE (-45)
 #define SERVO_NEUTRAL_DEGREE 0
-#define DEG2PULSE(deg)  (1349+10*(deg))
+#define DEG2PULSE(deg)  (1600+9*(deg))
 #define SERVO_PERIOD_MS 20
 
 static const CommandOp CmdDic[] = {
@@ -62,11 +62,11 @@ static const CommandOp CmdDic[] = {
 };
 
 static ServoActionDef Servo[] = {
-	{"R", &htim2, TIM_CHANNEL_4, 1349, 1349},
-	{"A", &htim3, TIM_CHANNEL_1, 1349, 1349},
-	{"B", &htim3, TIM_CHANNEL_2, 1349, 1349},
-	{"C", &htim3, TIM_CHANNEL_3, 1349, 1349},
-	{"D", &htim3, TIM_CHANNEL_4, 1349, 1349}
+	{"R", &htim2, TIM_CHANNEL_4, 1499, 1499},
+	{"A", &htim3, TIM_CHANNEL_1, 1499, 1499},
+	{"B", &htim3, TIM_CHANNEL_2, 1499, 1499},
+	{"C", &htim3, TIM_CHANNEL_3, 1499, 1499},
+	{"D", &htim3, TIM_CHANNEL_4, 1499, 1499}
 };
 #define NUM_OF_SERVO 5
 
@@ -127,13 +127,13 @@ static void PutChr(char c)
 	idxTxBuffer = (idxTxBuffer + 1) % TX_BUFFER_COUNT;
 }
 
-//static void PutUint16(uint16_t value)
-//{
-//  static const uint8_t HexChr[] = "0123456789ABCDEF";
-//	for (int s = 12; s >= 0; s -= 4) {
-//		PutChr(HexChr[0x0F & (value >> s)]);
-//	}
-//}
+void PutUint16(uint16_t value)
+{
+  static const uint8_t HexChr[] = "0123456789ABCDEF";
+	for (int s = 12; s >= 0; s -= 4) {
+		PutChr(HexChr[0x0F & (value >> s)]);
+	}
+}
 
 static uint8_t IsBeamPutOn(int16_t index)
 {
@@ -216,27 +216,16 @@ static void moveServo(int16_t index, uint32_t goal)
 {
 	ServoActionDef *servo = &Servo[index];
 	servo->goal = goal;
-//	static TIM_OC_InitTypeDef sConfigOC;
-//  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-//  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-//  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-//	sConfigOC.Pulse = servo->position;
-//	HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);
 	HAL_TIM_PWM_Start_IT(servo->htim_base, servo->channel);
 	while (servo->position != goal)
 	{
-		osDelay(SERVO_PERIOD_MS);
+		osDelay(1);
 	}
 	// stop callback
+	osDelay(2*SERVO_PERIOD_MS);
 	HAL_TIM_PWM_Stop_IT(servo->htim_base, servo->channel);
-	
-	// hold 5 period
-	HAL_TIM_PWM_Start(servo->htim_base, servo->channel);
-	osDelay(5 * SERVO_PERIOD_MS);
-	HAL_TIM_PWM_Stop(servo->htim_base, servo->channel);
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
 	osDelay(SERVO_PERIOD_MS);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
 }
 
 
@@ -252,13 +241,13 @@ static void cmdClear(CommandBufferDef *cmd)
 	int16_t *tail = &BeamStack[NUM_OF_SERVO];
 	for (uint16_t index = 0; index < NUM_OF_SERVO; index++)
 	{
-		BeamStack[BeamPtr++] = index;
+		BeamStack[BeamPtr++] = NUM_OF_SERVO - 1 - index;
 	}
 	for (p = BeamStack; p < tail; p++)
 	{
 		for (q = p + 1; q < tail; q++)
 		{
-			if (*p < *q)
+			if (Servo[*p].position < Servo[*q].position)
 			{
 				int16_t tmp = *q;
 				*q = *p;
@@ -267,14 +256,18 @@ static void cmdClear(CommandBufferDef *cmd)
 		}
 	}
 	// unstack all
+	PutStr("CLEAR ");
 	for (;;)
 	{
 		int16_t index = PopBeam();
 		if (index < 0) {
 			break;
 		}
+		PutChr(Servo[index].name[0]);
+		PutChr(' ');
 		moveServo(index, DEG2PULSE(SERVO_TAKE_DEGREE));
 	}
+	PutStr("\r\n");
 }
 
 /**
@@ -283,10 +276,14 @@ static void cmdClear(CommandBufferDef *cmd)
 static void cmdNeutral(CommandBufferDef *cmd)
 {
 	cmdClear(NULL);
+	PutStr("NEUTRAL ");
 	for (uint16_t index = 0; index < NUM_OF_SERVO; index++)
 	{
+		PutChr(Servo[index].name[0]);
+		PutChr(' ');
 		moveServo(index, DEG2PULSE(SERVO_NEUTRAL_DEGREE));
 	}
+	PutStr("\r\n");
 }
 
 /**
@@ -307,7 +304,7 @@ static void cmdPutOn(CommandBufferDef *cmd)
 			PutStr(MSG_INVALID_PARAMETER);
 			return;
 		}
-		moveServo(index, DEG2PULSE(SERVO_PUT_DEGREE));
+		moveServo(index, DEG2PULSE(SERVO_PUT_DEGREE) - BeamPtr);
 		PushBeam(index);
 	}
 	else
@@ -499,17 +496,17 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 	{
 		if (srv->position < srv->goal)
 		{
-			srv->position +=  (srv->goal - srv->position > 8 ? 4 : 1);
+			srv->position +=  (srv->goal - srv->position > 50 ? 25 : 1);
 		}
 		else if (srv->position > srv->goal)
 		{
-			srv->position -= (srv->position - srv->goal > 8 ? 4 : 1);
+			srv->position -= (srv->position - srv->goal > 50 ? 25 : 1);
 		}
+		__HAL_TIM_SetCompare(htim, srv->channel, srv->position);
 		// blink LEDs
-		if ((srv->position >> 4) & 1)
+		if ((srv->position >> 5) & 1)
 		{
-			__HAL_TIM_SetCompare(htim, srv->channel, srv->position);
-			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8|GPIO_PIN_9);
+			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
 		}
 	}
 }
