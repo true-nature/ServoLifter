@@ -38,15 +38,17 @@ typedef struct  {
 
 typedef struct {
 	char *name;
-	uint32_t position;
 	TIM_HandleTypeDef  *htim_base;
 	uint32_t channel;
+	__IO uint32_t position;
+	__IO uint32_t goal;
 } ServoActionDef;
 
-#define SERVO_PUT_DEGREE (-60)
-#define SERVO_TAKE_DEGREE 60
+#define SERVO_PUT_DEGREE (45)
+#define SERVO_TAKE_DEGREE (-45)
 #define SERVO_NEUTRAL_DEGREE 0
 #define DEG2PULSE(deg)  (1349+10*(deg))
+#define SERVO_PERIOD_MS 20
 
 static const CommandOp CmdDic[] = {
 	{"CLEAR", cmdClear},
@@ -59,17 +61,40 @@ static const CommandOp CmdDic[] = {
 };
 
 static ServoActionDef Servo[] = {
-	{"R", 1349, &htim2, TIM_CHANNEL_4},
-	{"A", 1349, &htim3, TIM_CHANNEL_1},
-	{"B", 1349, &htim3, TIM_CHANNEL_2},
-	{"C", 1349, &htim3, TIM_CHANNEL_3},
-	{"D", 1349, &htim3, TIM_CHANNEL_4},
-	{NULL, 1349}
+	{"R", &htim2, TIM_CHANNEL_4, 1349, 1349},
+	{"A", &htim3, TIM_CHANNEL_1, 1349, 1349},
+	{"B", &htim3, TIM_CHANNEL_2, 1349, 1349},
+	{"C", &htim3, TIM_CHANNEL_3, 1349, 1349},
+	{"D", &htim3, TIM_CHANNEL_4, 1349, 1349}
 };
+#define NUM_OF_SERVO 5
 
 //
-static int16_t BeamStack[6];
+static int16_t BeamStack[NUM_OF_SERVO];
 static int16_t BeamPtr;
+
+static uint32_t ActiveChannel2Channel(HAL_TIM_ActiveChannel ac)
+{
+	uint32_t channel = TIM_CHANNEL_ALL;
+	switch (ac)
+	{
+		case HAL_TIM_ACTIVE_CHANNEL_1:
+			channel = TIM_CHANNEL_1;
+			break;
+		case HAL_TIM_ACTIVE_CHANNEL_2:
+			channel = TIM_CHANNEL_2;
+			break;
+		case HAL_TIM_ACTIVE_CHANNEL_3:
+			channel = TIM_CHANNEL_3;
+			break;
+		case HAL_TIM_ACTIVE_CHANNEL_4:
+			channel = TIM_CHANNEL_4;
+			break;
+		default:
+			break;
+	}
+	return channel;
+}
 
 /**
  * Print a string to console.
@@ -110,109 +135,6 @@ static void PutChr(char c)
 //	}
 //}
 
-/**
-  * Print version number.
-  */
-static void cmdVersion(CommandBufferDef *cmd)
-{
-	PutStr(VERSION_STR);
-	PutStr(MSG_CRLF);
-}
-
-static int16_t name2servoIndex(char c)
-{
-	int16_t index = -1;
-	ServoActionDef *p = Servo;
-	while (p->name != NULL)
-	{
-		if (p->name[0] == c) {
-			index = (p - Servo);
-			break;
-		}
-		p++;
-	}
-	return index;
-}
-
-/**
-  * @param  idxSrv: Index of servo motor.
-  * @param  start: Start postion.
-  * @param  end: End position.
-  */
-static void moveServo(int16_t index, uint32_t end)
-{
-	ServoActionDef *servo = &Servo[index];
-	static TIM_OC_InitTypeDef sConfigOC;
-	uint32_t step = (end >= servo->position ? 1 : -1);
-  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	for (;;) {
-		sConfigOC.Pulse = servo->position;
-		HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
-		HAL_TIM_PWM_Start_IT(servo->htim_base, servo->channel);
-		 if (servo->position == end) break;
-		servo->position += step;
-		//osDelay(1);
-		osDelay(0);
-	};
-
-	HAL_TIM_PWM_Stop(servo->htim_base, servo->channel);
-}
-
-static void MoveAll(uint32_t dest)
-{
-	moveServo(0, dest);
-	static TIM_OC_InitTypeDef sConfigOC;
-	uint32_t pulse = DEG2PULSE(SERVO_PUT_DEGREE);
-	sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	while (pulse < dest) {
-		for (int16_t index = 1; index < 5; index++) {
-			ServoActionDef *servo = &Servo[index];
-			if (servo->position >= pulse) { continue; }
-			sConfigOC.Pulse = pulse;
-			HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
-			HAL_TIM_PWM_Start_IT(servo->htim_base, servo->channel);
-			osDelay(19);
-		}
-		pulse += 5;
-	}
-	// fix overshoot
-	while (pulse > dest) {
-		for (int16_t index = 1; index < 5; index++) {
-			ServoActionDef *servo = &Servo[index];
-			if (servo->position <= pulse) { continue; }
-			sConfigOC.Pulse = pulse;
-			HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
-			HAL_TIM_PWM_Start(servo->htim_base, servo->channel);
-			osDelay(19);
-		}
-		pulse--;
-	}
-	for (int16_t index = 0; index < 5; index++) {
-		ServoActionDef *servo = &Servo[index];
-		HAL_TIM_PWM_Stop(servo->htim_base, servo->channel);
-	}
-	BeamPtr = 0;
-}
-/**
-  * Clear all arms.
-  */
-static void cmdClear(CommandBufferDef *cmd)
-{
-	MoveAll(DEG2PULSE(SERVO_TAKE_DEGREE));
-}
-
-/**
-  * Move arms to neutral position of servo.
-  */
-static void cmdNeutral(CommandBufferDef *cmd)
-{
-	MoveAll(DEG2PULSE(SERVO_NEUTRAL_DEGREE));
-}
-
 static uint8_t IsBeamPutOn(int16_t index)
 {
 	uint8_t result = 0;
@@ -229,7 +151,7 @@ static uint8_t IsBeamPutOn(int16_t index)
 
 static void PushBeam(int16_t index)
 {
-	if (BeamPtr < 5) 
+	if (BeamPtr < NUM_OF_SERVO) 
 	{
 		BeamStack[BeamPtr++] = index;
 	}
@@ -248,6 +170,120 @@ static int16_t PopBeam()
 	else
 	{
 		return -1;
+	}
+}
+
+/**
+  * Print version number.
+  */
+static void cmdVersion(CommandBufferDef *cmd)
+{
+	PutStr(VERSION_STR);
+	PutStr(MSG_CRLF);
+}
+
+static int16_t name2servoIndex(char c)
+{
+	int16_t index = -1;
+	for (int16_t s = 0; s < NUM_OF_SERVO; s++)
+	{
+		if (Servo[s].name[0] == c)
+		{
+			index = s;
+			break;
+		}
+	}
+	return index;
+}
+
+/**
+ * Re-scan current position by reading timer register.
+ */
+static void RescanPosition()
+{
+	for (int index = 0; index < NUM_OF_SERVO; index++)
+	{
+		Servo[index].position = __HAL_TIM_GetCompare(Servo[index].htim_base, Servo[index].channel);
+	}
+}
+
+/**
+  * @param  idxSrv: Index of servo motor.
+  * @param  start: Start postion.
+  * @param  end: End position.
+  */
+static void moveServo(int16_t index, uint32_t goal)
+{
+	ServoActionDef *servo = &Servo[index];
+	servo->goal = goal;
+//	static TIM_OC_InitTypeDef sConfigOC;
+//  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+//  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+//  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+//	sConfigOC.Pulse = servo->position;
+//	HAL_TIM_PWM_ConfigChannel(servo->htim_base, &sConfigOC, servo->channel);
+	HAL_TIM_PWM_Start_IT(servo->htim_base, servo->channel);
+	while (servo->position != goal)
+	{
+		osDelay(SERVO_PERIOD_MS);
+	}
+	// stop callback
+	HAL_TIM_PWM_Stop_IT(servo->htim_base, servo->channel);
+	
+	// hold 5 period
+	HAL_TIM_PWM_Start(servo->htim_base, servo->channel);
+	osDelay(5 * SERVO_PERIOD_MS);
+	HAL_TIM_PWM_Stop(servo->htim_base, servo->channel);
+	osDelay(SERVO_PERIOD_MS);
+}
+
+
+/**
+  * Clear all arms.
+  */
+static void cmdClear(CommandBufferDef *cmd)
+{
+	// set beam stack by order of position
+	RescanPosition();
+	BeamPtr = 0;
+	int16_t *p, *q;
+	int16_t *tail = &BeamStack[NUM_OF_SERVO];
+	for (uint16_t index = 0; index < NUM_OF_SERVO; index++)
+	{
+		BeamStack[BeamPtr++] = index;
+	}
+	for (p = BeamStack; p < tail; p++)
+	{
+		for (q = p + 1; q < tail; q++)
+		{
+			if (*p < *q)
+			{
+				int16_t tmp = *q;
+				*q = *p;
+				*p = tmp;
+			}
+		}
+	}
+	// unstack all
+	for (;;)
+	{
+		int16_t index = PopBeam();
+		if (index < 0) {
+			break;
+		}
+		moveServo(index, DEG2PULSE(SERVO_TAKE_DEGREE));
+	}
+}
+
+/**
+  * Move arms to neutral position of servo.
+  */
+static void cmdNeutral(CommandBufferDef *cmd)
+{
+	cmdClear(NULL);
+	for (uint16_t index = 0; index < NUM_OF_SERVO; index++)
+	{
+		moveServo(index, DEG2PULSE(SERVO_NEUTRAL_DEGREE));
 	}
 }
 
@@ -307,11 +343,12 @@ static void cmdHelp(CommandBufferDef *cmd)
 {
 	PutStr("HELP\r\n  Show command help.\r\n");
 	PutStr("VERSION\r\n  Show version string.\r\n");
-	PutStr("PUTON <A|B|C|D|R>\r\n  Put a card or the R/W to the target.\r\n");
-	PutStr("TAKEOFF\r\n  Take a card or the R/W from the target.\r\n");
-	PutStr("CLEAR\r\n  Take all cards and the R/W from the target.\r\n");
+	PutStr("PUTON <A|B|C|D|R>\r\n  Put a card or the Reader to the target.\r\n");
+	PutStr("TAKEOFF\r\n  Take a card or the Reader from the target.\r\n");
+	PutStr("CLEAR\r\n  Take all cards and the Reader from the target.\r\n");
 	PutStr("NEUTRAL\r\n  Move all servo motors to neutral position.\r\n");
 }
+
 void StartMotorThread(void const * argument)
 {
 	osEvent evt;
@@ -432,6 +469,22 @@ void ParseInputChars(uint8_t ch)
 	}
 }
 
+//
+ServoActionDef *handle2servo(TIM_HandleTypeDef *htim)
+{
+	ServoActionDef *srv = NULL;
+	uint32_t channel = ActiveChannel2Channel(htim->Channel) ;
+	for (int s = 0; s < NUM_OF_SERVO; s++)
+	{
+		if (Servo[s].htim_base == htim && Servo[s].channel == channel)
+		{
+			srv = &Servo[s];
+			break;
+		}
+	}
+	return srv;
+}
+
 /**
   * @brief  PWM Pulse finished callback in non blocking mode 
   * @param  htim : TIM handle
@@ -439,13 +492,18 @@ void ParseInputChars(uint8_t ch)
   */
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the __HAL_TIM_PWM_PulseFinishedCallback could be implemented in the user file
-   */
-	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
+	ServoActionDef *srv = handle2servo(htim);
+	if (srv != NULL)
 	{
-		uint32_t compare = __HAL_TIM_GetCompare(htim, TIM_CHANNEL_2);
-		__HAL_TIM_SetCompare(htim, TIM_CHANNEL_2, compare);
+		if (srv->position < srv->goal)
+		{
+			srv->position +=  (srv->goal - srv->position > 10 ? 5 : 1);
+		}
+		else if (srv->position > srv->goal)
+		{
+			srv->position -= (srv->position - srv->goal > 10 ? 5 : 1);
+		}
+		__HAL_TIM_SetCompare(htim, srv->channel, srv->position);
 	}
 }
 
