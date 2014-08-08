@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-#Thu Aug 07 21:54:01 JST 2014
+#Sat Aug 09 01:12:33 JST 2014
 FREERTOS.IPParameters=configCHECK_FOR_STACK_OVERFLOW,configUSE_MALLOC_FAILED_HOOK
 FREERTOS.configCHECK_FOR_STACK_OVERFLOW=1
 FREERTOS.configUSE_MALLOC_FAILED_HOOK=1
@@ -150,19 +150,20 @@ TIM2.Channel-PWM\ Generation4\ CH4=TIM_CHANNEL_4
 TIM2.IPParameters=Period,Prescaler,Channel-PWM Generation4 CH4,Pulse-PWM Generation4 CH4
 TIM2.Period=17999
 TIM2.Prescaler=39
-TIM2.Pulse-PWM\ Generation4\ CH4=1499
+TIM2.Pulse-PWM\ Generation4\ CH4=959
 TIM3.Channel-PWM\ Generation2\ CH2=TIM_CHANNEL_2
 TIM3.Channel-PWM\ Generation3\ CH3=TIM_CHANNEL_3
 TIM3.Channel-PWM\ Generation4\ CH4=TIM_CHANNEL_4
 TIM3.IPParameters=Pulse-PWM Generation1 CH1,Period,Prescaler,Channel-PWM Generation4 CH4,Pulse-PWM Generation4 CH4,Channel-PWM Generation2 CH2,Pulse-PWM Generation3 CH3,Channel-PWM Generation3 CH3,Pulse-PWM Generation2 CH2
 TIM3.Period=19999
 TIM3.Prescaler=39
-TIM3.Pulse-PWM\ Generation1\ CH1=1499
-TIM3.Pulse-PWM\ Generation2\ CH2=1499
-TIM3.Pulse-PWM\ Generation3\ CH3=1499
-TIM3.Pulse-PWM\ Generation4\ CH4=1499
+TIM3.Pulse-PWM\ Generation1\ CH1=959
+TIM3.Pulse-PWM\ Generation2\ CH2=959
+TIM3.Pulse-PWM\ Generation3\ CH3=959
+TIM3.Pulse-PWM\ Generation4\ CH4=959
 USART1.AutoBaudRateEnableParam-Asynchronous=UART_ADVFEATURE_AUTOBAUDRATE_DISABLE
-USART1.IPParameters=AutoBaudRateEnableParam-Asynchronous
+USART1.BaudRate-Asynchronous=115200
+USART1.IPParameters=BaudRate-Asynchronous,AutoBaudRateEnableParam-Asynchronous
 VP_FREERTOS_VS_ENABLE.Mode=Enabled
 VP_FREERTOS_VS_ENABLE.Signal=FREERTOS_VS_ENABLE
 VP_TIM2_VS_ClockSourceINT.Mode=Internal

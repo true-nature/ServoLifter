@@ -42,13 +42,14 @@ typedef struct {
 	TIM_HandleTypeDef  *htim_base;
 	uint32_t channel;
 	__IO uint32_t position;
+	__IO uint32_t start;
 	__IO uint32_t goal;
 } ServoActionDef;
 
-#define SERVO_PUT_DEGREE (45)
-#define SERVO_TAKE_DEGREE (-45)
+#define SERVO_PUT_DEGREE (60)
+#define SERVO_TAKE_DEGREE (-60)
 #define SERVO_NEUTRAL_DEGREE 0
-#define DEG2PULSE(deg)  (1600+9*(deg))
+#define DEG2PULSE(deg)  (1500+9*(deg))
 #define SERVO_PERIOD_MS 20
 
 static const CommandOp CmdDic[] = {
@@ -209,23 +210,24 @@ static void RescanPosition()
 
 /**
   * @param  idxSrv: Index of servo motor.
-  * @param  start: Start postion.
   * @param  end: End position.
   */
 static void moveServo(int16_t index, uint32_t goal)
 {
 	ServoActionDef *servo = &Servo[index];
+	servo->start = servo->position;
+//	HAL_TIM_PWM_Start_IT(servo->htim_base, servo->channel);
+//	osDelay(1 * SERVO_PERIOD_MS);
 	servo->goal = goal;
-	HAL_TIM_PWM_Start_IT(servo->htim_base, servo->channel);
 	while (servo->position != goal)
 	{
-		osDelay(1);
+		osDelay(SERVO_PERIOD_MS);
 	}
 	// stop callback
-	osDelay(2*SERVO_PERIOD_MS);
-	HAL_TIM_PWM_Stop_IT(servo->htim_base, servo->channel);
-	osDelay(SERVO_PERIOD_MS);
+//	osDelay(20 * SERVO_PERIOD_MS);
+//	HAL_TIM_PWM_Stop_IT(servo->htim_base, servo->channel);
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
+	servo->start = servo->goal;
 }
 
 
@@ -352,7 +354,10 @@ void StartMotorThread(void const * argument)
 {
 	osEvent evt;
 	CommandBufferDef *cmdBuf;
-	osDelay(500);
+	for (int16_t s = 0; s < NUM_OF_SERVO; s++)
+	{
+		HAL_TIM_PWM_Start_IT(Servo[s].htim_base, Servo[s].channel);
+	}
 	cmdVersion(NULL);
 	cmdClear(NULL);
 	PutStr("OK\r\n");
@@ -494,17 +499,30 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 	ServoActionDef *srv = handle2servo(htim);
 	if (srv != NULL)
 	{
+		uint32_t past = (srv->position < srv->start ? srv->start - srv->position : srv->position - srv->start);
+		uint32_t remain = (srv->position < srv->goal ? srv->goal - srv->position : srv->position - srv->goal);
+		uint32_t diff = (past < remain ? past : remain);
+		uint32_t step = 1 << 15;
+		for (;;)
+		{
+			if ((diff & step) != 0 || step == 1)
+			{
+				break;
+			}
+			step >>= 1;
+		}
+		if (step > 32) step = 32;
 		if (srv->position < srv->goal)
 		{
-			srv->position +=  (srv->goal - srv->position > 50 ? 25 : 1);
+			srv->position +=  step;
 		}
 		else if (srv->position > srv->goal)
 		{
-			srv->position -= (srv->position - srv->goal > 50 ? 25 : 1);
+			srv->position -= step;
 		}
 		__HAL_TIM_SetCompare(htim, srv->channel, srv->position);
 		// blink LEDs
-		if ((srv->position >> 5) & 1)
+		if (srv->goal != srv->position && srv->position % 3 == 0)
 		{
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
 		}
