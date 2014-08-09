@@ -17,6 +17,7 @@
 #define MSG_ALRELADY_PUT "Already put on.\r\n"
 #define MSG_BEAM_EMPTY "No beam is put on.\r\n"
 
+static uint8_t debug = 0;
 
 /* Send Data over USART are stored in this buffer       */
 static UserBufferDef UserTxBuffer[TX_BUFFER_COUNT];
@@ -31,11 +32,23 @@ static void cmdTakeOff(CommandBufferDef *cmd);
 static void cmdClear(CommandBufferDef *cmd);
 static void cmdNeutral(CommandBufferDef *cmd);
 static void cmdHelp(CommandBufferDef *cmd);
+static void cmdDebug(CommandBufferDef *cmd);
 
 typedef struct  {
 	const char *const name;
 	void (*const func)(CommandBufferDef *cmd);
 } CommandOp;
+
+static const CommandOp CmdDic[] = {
+	{"CLEAR", cmdClear},
+	{"PUTON", cmdPutOn},
+	{"TAKEOFF", cmdTakeOff},
+	{"HELP", cmdHelp},
+	{"VERSION", cmdVersion},
+	{"NEUTRAL", cmdNeutral},
+	{"DEBUG", cmdDebug},
+	{NULL, NULL}
+};
 
 typedef struct {
 	char *name;
@@ -46,28 +59,19 @@ typedef struct {
 	__IO uint32_t goal;
 } ServoActionDef;
 
-#define SERVO_PUT_DEGREE (60)
-#define SERVO_TAKE_DEGREE (-60)
+#define SERVO_PUT_DEGREE (45)
+#define SERVO_TAKE_DEGREE (-45)
 #define SERVO_NEUTRAL_DEGREE 0
-#define DEG2PULSE(deg)  (1500+9*(deg))
+#define DEG2PULSE(deg)  (1499+9*(deg))
 #define SERVO_PERIOD_MS 20
 
-static const CommandOp CmdDic[] = {
-	{"CLEAR", cmdClear},
-	{"PUTON", cmdPutOn},
-	{"TAKEOFF", cmdTakeOff},
-	{"HELP", cmdHelp},
-	{"VERSION", cmdVersion},
-	{"NEUTRAL", cmdNeutral},
-	{NULL, NULL}
-};
-
+#define SERVO_INIT_POS 959
 static ServoActionDef Servo[] = {
-	{"R", &htim2, TIM_CHANNEL_4, 1499, 1499},
-	{"A", &htim3, TIM_CHANNEL_1, 1499, 1499},
-	{"B", &htim3, TIM_CHANNEL_2, 1499, 1499},
-	{"C", &htim3, TIM_CHANNEL_3, 1499, 1499},
-	{"D", &htim3, TIM_CHANNEL_4, 1499, 1499}
+	{"R", &htim2, TIM_CHANNEL_4, SERVO_INIT_POS, SERVO_INIT_POS, SERVO_INIT_POS},
+	{"A", &htim3, TIM_CHANNEL_1, SERVO_INIT_POS, SERVO_INIT_POS, SERVO_INIT_POS},
+	{"B", &htim3, TIM_CHANNEL_2, SERVO_INIT_POS, SERVO_INIT_POS, SERVO_INIT_POS},
+	{"C", &htim3, TIM_CHANNEL_3, SERVO_INIT_POS, SERVO_INIT_POS, SERVO_INIT_POS},
+	{"D", &htim3, TIM_CHANNEL_4, SERVO_INIT_POS, SERVO_INIT_POS, SERVO_INIT_POS}
 };
 #define NUM_OF_SERVO 5
 
@@ -131,8 +135,11 @@ static void PutChr(char c)
 void PutUint16(uint16_t value)
 {
   static const uint8_t HexChr[] = "0123456789ABCDEF";
-	for (int s = 12; s >= 0; s -= 4) {
-		PutChr(HexChr[0x0F & (value >> s)]);
+	if (debug) {
+		PutChr(':');
+		for (int s = 12; s >= 0; s -= 4) {
+			PutChr(HexChr[0x0F & (value >> s)]);
+		}
 	}
 }
 
@@ -175,6 +182,29 @@ static int16_t PopBeam()
 }
 
 /**
+  * Put a card on the RF antenna.
+	*
+	* PUTON <A/B/C/D>
+  */
+static void cmdDebug(CommandBufferDef *cmd)
+{
+	if (cmd->Arg == NULL) {
+		PutStr(MSG_EMPTY_ARGUMENT);
+		return;
+	}
+	switch (cmd->Arg[0])
+	{
+		case '0':
+			debug = 0;
+			break;
+		case '1':
+			debug = 1;
+			break;
+		default:
+			PutStr(MSG_INVALID_PARAMETER);
+	}
+}
+/**
   * Print version number.
   */
 static void cmdVersion(CommandBufferDef *cmd)
@@ -215,19 +245,19 @@ static void RescanPosition()
 static void moveServo(int16_t index, uint32_t goal)
 {
 	ServoActionDef *servo = &Servo[index];
+	// pause PWM
+	HAL_TIM_PWM_Stop_IT(servo->htim_base, servo->channel);
 	servo->start = servo->position;
-//	HAL_TIM_PWM_Start_IT(servo->htim_base, servo->channel);
-//	osDelay(1 * SERVO_PERIOD_MS);
 	servo->goal = goal;
+	PutUint16(Servo[index].position);
+	// restart PWM
+	HAL_TIM_PWM_Start_IT(servo->htim_base, servo->channel);
+
 	while (servo->position != goal)
 	{
 		osDelay(SERVO_PERIOD_MS);
 	}
-	// stop callback
-//	osDelay(20 * SERVO_PERIOD_MS);
-//	HAL_TIM_PWM_Stop_IT(servo->htim_base, servo->channel);
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
-	servo->start = servo->goal;
 }
 
 
@@ -266,6 +296,7 @@ static void cmdClear(CommandBufferDef *cmd)
 			break;
 		}
 		PutChr(Servo[index].name[0]);
+		PutUint16(Servo[index].position);
 		PutChr(' ');
 		moveServo(index, DEG2PULSE(SERVO_TAKE_DEGREE));
 	}
@@ -359,7 +390,6 @@ void StartMotorThread(void const * argument)
 		HAL_TIM_PWM_Start_IT(Servo[s].htim_base, Servo[s].channel);
 	}
 	cmdVersion(NULL);
-	cmdClear(NULL);
 	PutStr("OK\r\n");
   /* Infinite loop */
   for(;;)
@@ -502,16 +532,23 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 		uint32_t past = (srv->position < srv->start ? srv->start - srv->position : srv->position - srv->start);
 		uint32_t remain = (srv->position < srv->goal ? srv->goal - srv->position : srv->position - srv->goal);
 		uint32_t diff = (past < remain ? past : remain);
-		uint32_t step = 1 << 15;
+		uint32_t step = 1 << 24;
 		for (;;)
 		{
-			if ((diff & step) != 0 || step == 1)
+			if (step == 1)
 			{
+				break;
+			}
+			else if ((diff & step) != 0)
+			{
+				step >>= 1;
 				break;
 			}
 			step >>= 1;
 		}
-		if (step > 32) step = 32;
+		if (step > 32) {
+			step = 32;
+		}
 		if (srv->position < srv->goal)
 		{
 			srv->position +=  step;
