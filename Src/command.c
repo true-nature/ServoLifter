@@ -54,24 +54,29 @@ typedef struct {
 	char *name;
 	TIM_HandleTypeDef  *htim_base;
 	uint32_t channel;
+	uint32_t PutPosition;
+	uint32_t TakePosition;
 	__IO uint32_t position;
 	__IO uint32_t start;
 	__IO uint32_t goal;
 } ServoActionDef;
 
-#define SERVO_PUT_DEGREE (45)
-#define SERVO_TAKE_DEGREE (-45)
-#define SERVO_NEUTRAL_DEGREE 0
-#define DEG2PULSE(deg)  (1499+9*(deg))
 #define SERVO_PERIOD_MS 20
+#define DEG2PULSE(deg)  (1499+9*(deg))
 
-#define SERVO_INIT_POS 959
+#define SERVO_NEUTRAL_POS DEG2PULSE(0)
+
+#define CARD_PUT_POS DEG2PULSE(45)
+#define CARD_TAKE_POS DEG2PULSE(-45)
+#define RW_PUT_POS DEG2PULSE(-30)
+#define RW_TAKE_POS DEG2PULSE(45)
+
 static ServoActionDef Servo[] = {
-	{"R", &htim2, TIM_CHANNEL_4, SERVO_INIT_POS, SERVO_INIT_POS, SERVO_INIT_POS},
-	{"A", &htim3, TIM_CHANNEL_1, SERVO_INIT_POS, SERVO_INIT_POS, SERVO_INIT_POS},
-	{"B", &htim3, TIM_CHANNEL_2, SERVO_INIT_POS, SERVO_INIT_POS, SERVO_INIT_POS},
-	{"C", &htim3, TIM_CHANNEL_3, SERVO_INIT_POS, SERVO_INIT_POS, SERVO_INIT_POS},
-	{"D", &htim3, TIM_CHANNEL_4, SERVO_INIT_POS, SERVO_INIT_POS, SERVO_INIT_POS}
+	{"R", &htim2, TIM_CHANNEL_4, RW_PUT_POS, RW_TAKE_POS, RW_TAKE_POS, RW_TAKE_POS, RW_TAKE_POS},
+	{"A", &htim3, TIM_CHANNEL_1, CARD_PUT_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS},
+	{"B", &htim3, TIM_CHANNEL_2, CARD_PUT_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS},
+	{"C", &htim3, TIM_CHANNEL_3, CARD_PUT_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS},
+	{"D", &htim3, TIM_CHANNEL_4, CARD_PUT_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS}
 };
 #define NUM_OF_SERVO 5
 
@@ -270,10 +275,10 @@ static void cmdClear(CommandBufferDef *cmd)
 	RescanPosition();
 	BeamPtr = 0;
 	int16_t *p, *q;
-	int16_t *tail = &BeamStack[NUM_OF_SERVO];
-	for (uint16_t index = 0; index < NUM_OF_SERVO; index++)
+	int16_t *tail = &BeamStack[NUM_OF_SERVO - 1];
+	for (uint16_t index = 1; index < NUM_OF_SERVO; index++)
 	{
-		BeamStack[BeamPtr++] = NUM_OF_SERVO - 1 - index;
+		BeamStack[BeamPtr++] = index;
 	}
 	for (p = BeamStack; p < tail; p++)
 	{
@@ -287,6 +292,8 @@ static void cmdClear(CommandBufferDef *cmd)
 			}
 		}
 	}
+	// put RW top
+	BeamStack[BeamPtr++] = 0;
 	// unstack all
 	PutStr("CLEAR ");
 	for (;;)
@@ -298,7 +305,7 @@ static void cmdClear(CommandBufferDef *cmd)
 		PutChr(Servo[index].name[0]);
 		PutUint16(Servo[index].position);
 		PutChr(' ');
-		moveServo(index, DEG2PULSE(SERVO_TAKE_DEGREE));
+		moveServo(index, Servo[index].TakePosition);
 	}
 	PutStr("\r\n");
 }
@@ -314,7 +321,7 @@ static void cmdNeutral(CommandBufferDef *cmd)
 	{
 		PutChr(Servo[index].name[0]);
 		PutChr(' ');
-		moveServo(index, DEG2PULSE(SERVO_NEUTRAL_DEGREE));
+		moveServo(index, SERVO_NEUTRAL_POS);
 	}
 	PutStr("\r\n");
 }
@@ -337,7 +344,12 @@ static void cmdPutOn(CommandBufferDef *cmd)
 			PutStr(MSG_INVALID_PARAMETER);
 			return;
 		}
-		moveServo(index, DEG2PULSE(SERVO_PUT_DEGREE) - BeamPtr);
+		uint32_t pos = Servo[index].PutPosition;
+		if (index != 0)
+		{
+			pos -= 3 * BeamPtr;
+		}
+		moveServo(index, pos);
 		PushBeam(index);
 	}
 	else
@@ -365,7 +377,7 @@ static void cmdTakeOff(CommandBufferDef *cmd)
 	PutStr("TAKEOFF ");
 	PutStr(Servo[index].name);
 	PutStr("\r\n");
-	moveServo(index, DEG2PULSE(SERVO_TAKE_DEGREE));
+	moveServo(index, Servo[index].TakePosition);
 }
 
 /**
