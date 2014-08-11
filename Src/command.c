@@ -400,6 +400,7 @@ void StartMotorThread(void const * argument)
 	for (int16_t s = 0; s < NUM_OF_SERVO; s++)
 	{
 		HAL_TIM_PWM_Start_IT(Servo[s].htim_base, Servo[s].channel);
+		osDelay(100);
 	}
 	cmdVersion(NULL);
 	PutStr("OK\r\n");
