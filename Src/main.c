@@ -43,11 +43,12 @@
 
 /* USER CODE BEGIN 0 */
 #include "command.h"
-osMessageQId RcvBoxId;
 osMessageQId CmdBoxId;
 
-uint8_t UserRxBuffer[RX_BUFFER_COUNT];
-static uint32_t idxRxBuffer = 0;
+uint8_t UserRxBuffer[RX_BUFFER_SIZE];
+static __IO uint16_t idxRxStore = 0;
+static __IO uint16_t idxRxRead = 0;
+#define RX_IDX_WATERMARK (2*(RX_BUFFER_SIZE))
 #define RX_EVENT_TIMEOUT_MS 100
 
 /* USER CODE END 0 */
@@ -60,9 +61,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
- 	osMessageQDef(RcvBox, RX_BUFFER_COUNT, uint32_t);
-	RcvBoxId = osMessageCreate(osMessageQ(RcvBox), NULL);
-
  	osMessageQDef(CmdBoxId, MAX_CMD_BUF_COUNT, uint32_t);
 	CmdBoxId = osMessageCreate(osMessageQ(CmdBoxId), NULL);
 
@@ -156,8 +154,14 @@ void SystemClock_Config(void)
   */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	uint16_t nextIdxRx = (idxRxBuffer + 1) % RX_BUFFER_COUNT;
-  osMessagePut(RcvBoxId, (uint32_t)(UserRxBuffer[idxRxBuffer] | (nextIdxRx<<16)), 0);
+	idxRxStore++;
+	if (RX_IDX_WATERMARK < idxRxStore)
+	{
+		idxRxStore -= RX_BUFFER_SIZE;
+		idxRxRead -= RX_BUFFER_SIZE;
+	}
+	uint16_t idx = idxRxStore  % RX_BUFFER_SIZE;
+	while (HAL_UART_Receive_IT(&huart1, &UserRxBuffer[idx], 1) == HAL_BUSY) {	}
 }
 
 /* USER CODE END 4 */
@@ -166,23 +170,17 @@ static void StartThread(void const * argument) {
 
   /* USER CODE BEGIN 5 */
 
-	while (HAL_UART_Receive_IT(&huart1, &UserRxBuffer[idxRxBuffer], 1) == HAL_BUSY) {
+	while (HAL_UART_Receive_IT(&huart1, &UserRxBuffer[idxRxStore], 1) == HAL_BUSY) {
 		osDelay(1);
 	}
   /* Infinite loop */
-  osEvent evt;
   for(;;)
   {
-    evt = osMessageGet(RcvBoxId, RX_EVENT_TIMEOUT_MS);
-		// EchoBack
-		if (evt.status == osEventMessage) {
-			uint8_t c = (uint8_t)(0xFF & evt.value.v);
-			idxRxBuffer = (evt.value.v >> 16);
-			while (HAL_UART_Receive_IT(&huart1, &UserRxBuffer[idxRxBuffer], 1) == HAL_BUSY) {
-				osDelay(1);
-			}
+		while (idxRxRead < idxRxStore) {
+			uint8_t c = UserRxBuffer[idxRxRead++];
 			ParseInputChars(c);
 		}
+		osDelay(1);
 	}
 
   /* USER CODE END 5 */ 
