@@ -5,8 +5,8 @@
 #include <GuiEdit.au3>
 #include <WindowsConstants.au3>
 #include "CommInterface.au3"
-
-Local Const $iPort = 3
+#include "ComPortNo.au3"
+;Local Const $iPort = 3
 
 Local $hFile = _CommAPI_OpenCOMPort($iPort, 9600, 0, 8, 0)
 If @error Then
