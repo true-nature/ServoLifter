@@ -1,4 +1,4 @@
-; -*- coding: utf-8 -*-
+﻿; -*- coding: utf-8 -*-
 #include <ButtonConstants.au3>
 #include <EditConstants.au3>
 #include <GUIConstantsEx.au3>
@@ -8,7 +8,7 @@
 #include "ComPortNo.au3"
 ;Local Const $iPort = 3
 
-Local $hFile = _CommAPI_OpenCOMPort($iPort, 9600, 0, 8, 0)
+Local $hFile = _CommAPI_OpenCOMPort($iPort, 115200, 0, 8, 0)
 If @error Then
 	MsgBox($MB_OK, "Error", "Failed to open COM" & $iPort & "." & @error)
 	Exit

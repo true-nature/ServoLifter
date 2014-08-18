@@ -11,7 +11,7 @@
 
 #define MAX_COMMAND_LENGTH 127
 
-#define RX_BUFFER_SIZE	64
+#define RX_BUFFER_SIZE	32
 #define TX_BUFFER_COUNT	8
 typedef struct {
 	volatile uint32_t Length;
@@ -22,7 +22,7 @@ extern uint8_t UserRxBuffer[];
 #define UART_RX_TIMEOUT_MS 100
 #define UART_TX_TIMEOUT_MS 100
 
-//extern osMessageQId  RcvBoxId;
+extern osMessageQId  RcvBoxId;
 
 #define MAX_CMD_BUF_COUNT	3
 typedef struct CommandBufferDef {
