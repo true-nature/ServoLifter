@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-#Mon Aug 18 17:04:45 JST 2014
+#Wed Aug 20 10:14:06 JST 2014
 FREERTOS.IPParameters=configUSE_MALLOC_FAILED_HOOK,configCHECK_FOR_STACK_OVERFLOW
 FREERTOS.configCHECK_FOR_STACK_OVERFLOW=1
 FREERTOS.configUSE_MALLOC_FAILED_HOOK=1
@@ -167,7 +167,7 @@ TIM3.Pulse-PWM\ Generation2\ CH2=1094
 TIM3.Pulse-PWM\ Generation3\ CH3=1094
 TIM3.Pulse-PWM\ Generation4\ CH4=1094
 USART1.AutoBaudRateEnableParam-Asynchronous=UART_ADVFEATURE_AUTOBAUDRATE_DISABLE
-USART1.BaudRate-Asynchronous=115200
+USART1.BaudRate-Asynchronous=38400
 USART1.IPParameters=AutoBaudRateEnableParam-Asynchronous,BaudRate-Asynchronous
 VP_FREERTOS_VS_ENABLE.Mode=Enabled
 VP_FREERTOS_VS_ENABLE.Signal=FREERTOS_VS_ENABLE

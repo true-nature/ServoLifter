@@ -8,7 +8,7 @@
 #include "ComPortNo.au3"
 ;Local Const $iPort = 3
 
-Local $hFile = _CommAPI_OpenCOMPort($iPort, 115200, 0, 8, 0)
+Local $hFile = _CommAPI_OpenCOMPort($iPort, 38400, 0, 8, 0)
 If @error Then
 	MsgBox($MB_OK, "Error", "Failed to open COM" & $iPort & "." & @error)
 	Exit
