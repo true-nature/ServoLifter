@@ -599,4 +599,19 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 	}
 }
 
+/**
+  * @brief  EXTI line detection callbacks.
+  * @param GPIO_Pin: Specifies the pins connected EXTI line
+  * @retval None
+  */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	static CommandBufferDef cmd;
+	if (GPIO_Pin == GPIO_PIN_0)
+	{
+		cmd.func = cmdLock;
+		osMessagePut(CmdBoxId, (uint32_t)&cmd, 0);
+	}
+}
+
 /*****END OF FILE****/
