@@ -15,7 +15,7 @@ If @error Then
 EndIf
 
 #Region ### START Koda GUI section ### Form=c:\stm32cube\servolifter\autoit\autoform.kxf
-$Form1_1 = GUICreate("ServoLifter demo", 362, 353, 693, 103)
+$Form1_1 = GUICreate("ServoLifter demo", 362, 385, 493, 103)
 GUISetFont(9, 400, 0, "ＭＳ Ｐゴシック")
 $Button1 = GUICtrlCreateButton("PUT A", 16, 16, 75, 25)
 $Button2 = GUICtrlCreateButton("PUT B", 16, 48, 75, 25)
@@ -25,8 +25,9 @@ $Button5 = GUICtrlCreateButton("PUT R", 16, 144, 75, 25)
 $Button6 = GUICtrlCreateButton("TAKE", 16, 192, 75, 25)
 $Button7 = GUICtrlCreateButton("CLEAR", 16, 240, 75, 25)
 $Button8 = GUICtrlCreateButton("NEUTRAL", 16, 272, 75, 25)
-$Button9 = GUICtrlCreateButton("Exit", 16, 312, 75, 25)
-$Edit1 = GUICtrlCreateEdit("", 112, 16, 225, 321)
+$Button9 = GUICtrlCreateButton("LOCK", 16, 302, 75, 25)
+$Button10 = GUICtrlCreateButton("Exit", 16, 344, 75, 25)
+$Edit1 = GUICtrlCreateEdit("", 112, 16, 230, 353)
 GUICtrlSetData(-1, "")
 GUISetState(@SW_SHOW)
 #EndRegion ### END Koda GUI section ###
@@ -59,6 +60,9 @@ While 1
 			_CommAPI_TransmitString($hFile, "NEUTRAL" & @CR)
 			ReceiveUntilOK($hFile)
 		Case $Button9
+			_CommAPI_TransmitString($hFile, "LOCK" & @CR)
+			ReceiveUntilOK($hFile)
+		Case $Button10
 			_CommAPI_ClosePort($hFile)
 			Exit
 		Case $GUI_EVENT_CLOSE

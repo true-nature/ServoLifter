@@ -30,6 +30,7 @@ static void cmdVersion(CommandBufferDef *cmd);
 static void cmdPutOn(CommandBufferDef *cmd);
 static void cmdTakeOff(CommandBufferDef *cmd);
 static void cmdClear(CommandBufferDef *cmd);
+static void cmdLock(CommandBufferDef *cmd);
 static void cmdNeutral(CommandBufferDef *cmd);
 static void cmdHelp(CommandBufferDef *cmd);
 static void cmdDebug(CommandBufferDef *cmd);
@@ -46,6 +47,7 @@ static const CommandOp CmdDic[] = {
 	{"HELP", cmdHelp},
 	{"VERSION", cmdVersion},
 	{"NEUTRAL", cmdNeutral},
+	{"LOCK", cmdLock},
 	{"DEBUG", cmdDebug},
 	{NULL, NULL}
 };
@@ -311,6 +313,23 @@ static void cmdClear(CommandBufferDef *cmd)
 }
 
 /**
+  * Move arms to lock position. All arms except R will down.
+  */
+static void cmdLock(CommandBufferDef *cmd)
+{
+	cmdClear(NULL);
+	PutStr("LOCK ");
+	for (uint16_t index = 1; index < NUM_OF_SERVO; index++)
+	{
+		PutChr(Servo[index].name[0]);
+		PutChr(' ');
+		moveServo(index, CARD_PUT_POS);
+		PushBeam(index);
+	}
+	PutStr("\r\n");
+}
+
+/**
   * Move arms to neutral position of servo.
   */
 static void cmdNeutral(CommandBufferDef *cmd)
@@ -391,6 +410,7 @@ static void cmdHelp(CommandBufferDef *cmd)
 	PutStr("TAKEOFF\r\n  Take a card or the Reader from the target.\r\n");
 	PutStr("CLEAR\r\n  Take all cards and the Reader from the target.\r\n");
 	PutStr("NEUTRAL\r\n  Move all servo motors to neutral position.\r\n");
+	PutStr("LOCK\r\n  Lock all arms except R to flat position.\r\n");
 }
 
 void StartMotorThread(void const * argument)
