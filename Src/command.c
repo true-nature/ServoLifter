@@ -18,6 +18,7 @@
 #define MSG_BEAM_EMPTY "No beam is put on.\r\n"
 
 static uint8_t debug = 0;
+static uint8_t flag_locked = 0;
 
 /* Send Data over USART are stored in this buffer       */
 static UserBufferDef UserTxBuffer[TX_BUFFER_COUNT];
@@ -317,6 +318,11 @@ static void cmdClear(CommandBufferDef *cmd)
   */
 static void cmdLock(CommandBufferDef *cmd)
 {
+	if (flag_locked)
+	{
+		PutStr("Warning! Already Locked.\nPlease RESET and Lock again.");
+		return;
+	}
 	cmdClear(NULL);
 	PutStr("LOCK ");
 	for (uint16_t index = 1; index < NUM_OF_SERVO; index++)
@@ -327,6 +333,7 @@ static void cmdLock(CommandBufferDef *cmd)
 		PushBeam(index);
 	}
 	PutStr("\r\n");
+	flag_locked = 1;
 }
 
 /**
@@ -611,6 +618,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	{
 		cmd.func = cmdLock;
 		osMessagePut(CmdBoxId, (uint32_t)&cmd, 0);
+		/* Lock by USER Button only once. */
+		HAL_NVIC_DisableIRQ(EXTI0_1_IRQn);
 	}
 }
 
