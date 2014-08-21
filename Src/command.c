@@ -15,7 +15,9 @@
 #define MSG_EMPTY_ARGUMENT "Empty argument.\r\n"
 #define MSG_INVALID_PARAMETER "Invalid parameter.\r\n"
 #define MSG_ALRELADY_PUT "Already put on.\r\n"
+#define MSG_NOT_CLEAR "Not cleared. Reader can put only if no cards were put on.\r\n"
 #define MSG_BEAM_EMPTY "No beam is put on.\r\n"
+#define MSG_ALREADY_LOCKED "Warning! Already Locked.\r\nPlease RESET and Lock again.\r\n"
 
 static uint8_t debug = 0;
 static uint8_t flag_locked = 0;
@@ -81,6 +83,7 @@ static ServoActionDef Servo[] = {
 	{"C", &htim3, TIM_CHANNEL_3, CARD_PUT_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS},
 	{"D", &htim3, TIM_CHANNEL_4, CARD_PUT_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS, CARD_TAKE_POS}
 };
+static const int16_t READER_INDEX = 0;
 #define NUM_OF_SERVO 5
 
 static int16_t BeamStack[NUM_OF_SERVO];
@@ -320,7 +323,7 @@ static void cmdLock(CommandBufferDef *cmd)
 {
 	if (flag_locked)
 	{
-		PutStr("Warning! Already Locked.\nPlease RESET and Lock again.");
+		PutStr(MSG_ALREADY_LOCKED);
 		return;
 	}
 	cmdClear(NULL);
@@ -364,24 +367,26 @@ static void cmdPutOn(CommandBufferDef *cmd)
 		return;
 	}
 	int16_t index = name2servoIndex(cmd->Arg[0]);
-	if (!IsBeamPutOn(index)) 
-	{
-		if (index < 0) {
-			PutStr(MSG_INVALID_PARAMETER);
-			return;
-		}
-		uint32_t pos = Servo[index].PutPosition;
-		if (index != 0)
-		{
-			pos -= 3 * BeamPtr;
-		}
-		moveServo(index, pos);
-		PushBeam(index);
+	if (index < 0) {
+		PutStr(MSG_INVALID_PARAMETER);
+		return;
 	}
-	else
+	if (IsBeamPutOn(index)) 
 	{
 		PutStr(MSG_ALRELADY_PUT);
+		return;
 	}
+	if (index == READER_INDEX && BeamPtr > 0) {
+		PutStr(MSG_NOT_CLEAR);
+		return;
+	}
+	uint32_t pos = Servo[index].PutPosition;
+	if (index != 0)
+	{
+		pos -= 3 * BeamPtr;
+	}
+	moveServo(index, pos);
+	PushBeam(index);
 }
 
 /**
