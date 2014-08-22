@@ -71,9 +71,9 @@ typedef struct {
 
 #define SERVO_NEUTRAL_POS DEG2PULSE(0)
 
-#define CARD_PUT_POS DEG2PULSE(40)
+#define CARD_PUT_POS DEG2PULSE(45)
 #define CARD_TAKE_POS DEG2PULSE(-45)
-#define RW_PUT_POS DEG2PULSE(45)
+#define RW_PUT_POS DEG2PULSE(50)
 #define RW_TAKE_POS DEG2PULSE(-45)
 
 static ServoActionDef Servo[] = {
