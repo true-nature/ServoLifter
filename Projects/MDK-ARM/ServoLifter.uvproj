@@ -364,7 +364,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F051x8</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Drivers\CMSIS\Include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Inc; ..\..\Drivers\CMSIS\Include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Inc; ..\..\Drivers\CMSIS\Include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Inc; ..\..\Drivers\CMSIS\Include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Inc; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Include; ..\..\Drivers\CMSIS\Include; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ..\..\Inc; ..\..\Inc; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Drivers\CMSIS\Include; ; ..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Include; ..\..\Inc; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Include; ..\..\Inc; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Include; ..\..\Inc; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Include</IncludePath>
+              <IncludePath>..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Inc; ..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Inc; ..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Inc; ..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Include; ; ..\..\Drivers\CMSIS\Include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Inc; ..\..\Inc; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ..\..\Drivers\CMSIS\Include; ..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Include; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ..\..\Inc; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Drivers\CMSIS\Include; ..\..\Inc; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Drivers\CMSIS\Include; ..\..\Inc; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Drivers\CMSIS\Include; ..\..\Inc; ; ..\..\Drivers\STM32F0xx_HAL_Driver\Inc; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM0; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\include; ; ..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS; ; ..\..\Drivers\CMSIS\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -441,6 +441,11 @@
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\i2c.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -527,6 +532,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_tim_ex.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f0xx_hal_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f0xx_hal_i2c_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_i2c_ex.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -571,16 +586,6 @@
               <FileName>timers.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Middlewares\Third_Party\FreeRTOS\Source\timers.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Application/MDK-ARM</GroupName>
-          <Files>
-            <File>
-              <FileName>startup_stm32f051x8.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f051x8.s</FilePath>
             </File>
           </Files>
         </Group>

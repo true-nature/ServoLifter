@@ -56,7 +56,7 @@
 //#define HAL_CRYP_MODULE_ENABLED   
 //#define HAL_TSC_MODULE_ENABLED   
 //#define HAL_DAC_MODULE_ENABLED   
-//#define HAL_I2C_MODULE_ENABLED   
+#define HAL_I2C_MODULE_ENABLED
 //#define HAL_I2S_MODULE_ENABLED   
 //#define HAL_IWDG_MODULE_ENABLED   
 //#define HAL_LCD_MODULE_ENABLED   
@@ -141,7 +141,7 @@
                                              The real value may vary depending on the variations
                                              in voltage and temperature.  */
 /**
-  * @brief External Low Speed oscillator (LSI) value.
+  * @brief External Low Speed oscillator (LSE) value.
   */
 #if !defined  (LSE_VALUE)
  #define LSE_VALUE  ((uint32_t)32768)    /*!< Value of the External Low Speed oscillator in Hz */

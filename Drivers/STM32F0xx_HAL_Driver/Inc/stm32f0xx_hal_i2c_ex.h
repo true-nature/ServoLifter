@@ -1,12 +1,14 @@
 /**
   ******************************************************************************
-  * File Name          : TIM.h
-  * Date               : 31/10/2014 11:25:39
-  * Description        : This file provides code for the configuration
-  *                      of the TIM instances.
+  * @file    stm32f0xx_hal_i2c_ex.h
+  * @author  MCD Application Team
+  * @version V1.0.1
+  * @date    18-June-2014
+  * @brief   Header file of I2C HAL Extension module.
   ******************************************************************************
+  * @attention
   *
-  * COPYRIGHT(c) 2014 STMicroelectronics
+  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -31,34 +33,80 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */
+  */ 
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __tim_H
-#define __tim_H
+#ifndef __STM32F0xx_HAL_I2C_EX_H
+#define __STM32F0xx_HAL_I2C_EX_H
+
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f0xx_hal.h"
+#include "stm32f0xx_hal_def.h"  
 
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim3;
+/** @addtogroup STM32F0xx_HAL_Driver
+  * @{
+  */
 
-void MX_TIM2_Init(void);
-void MX_TIM3_Init(void);
+/** @addtogroup I2CEx
+  * @{
+  */ 
 
+/* Exported types ------------------------------------------------------------*/ 
+/* Exported constants --------------------------------------------------------*/
+
+/** @defgroup I2CEx_Exported_Constants
+  * @{
+  */
+
+/** @defgroup I2CEx_Analog_Filter
+  * @{
+  */
+#define I2C_ANALOGFILTER_ENABLED        ((uint32_t)0x00000000)
+#define I2C_ANALOGFILTER_DISABLED       I2C_CR1_ANFOFF
+
+#define IS_I2C_ANALOG_FILTER(FILTER) (((FILTER) == I2C_ANALOGFILTER_ENABLED) || \
+                                      ((FILTER) == I2C_ANALOGFILTER_DISABLED))
+/**
+  * @}
+  */
+
+/** @defgroup I2CEx_Digital_Filter
+  * @{
+  */
+#define IS_I2C_DIGITAL_FILTER(FILTER)   ((FILTER) <= 0x0000000F)
+/**
+  * @}
+  */
+  
+/**
+  * @}
+  */ 
+  
+/* Exported macro ------------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
+
+/* Peripheral Control functions  ************************************************/
+HAL_StatusTypeDef HAL_I2CEx_AnalogFilter_Config(I2C_HandleTypeDef *hi2c, uint32_t AnalogFilter);
+HAL_StatusTypeDef HAL_I2CEx_DigitalFilter_Config(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter);
+HAL_StatusTypeDef HAL_I2CEx_EnableWakeUp (I2C_HandleTypeDef *hi2c);
+HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp (I2C_HandleTypeDef *hi2c);
+
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */
+  
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ tim_H */
 
-/**
-  * @}
-  */
+#endif /* __STM32F0xx_HAL_I2C_EX_H */
 
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
