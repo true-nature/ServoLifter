@@ -589,6 +589,16 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>Application/MDK-ARM</GroupName>
+          <Files>
+            <File>
+              <FileName>startup_stm32f051x8.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\..\Drivers\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f051x8.s</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>
