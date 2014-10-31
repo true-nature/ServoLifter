@@ -9,6 +9,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include "i2c.h"
 #include "command.h"
 
 #define MSG_CRLF "\r\n"
@@ -18,6 +19,9 @@
 #define MSG_NOT_CLEAR "Not cleared. Reader can put only if no cards were put on.\r\n"
 #define MSG_BEAM_EMPTY "No beam is put on.\r\n"
 #define MSG_ALREADY_LOCKED "Warning! Already Locked.\r\nPlease RESET and Lock again.\r\n"
+
+#define I2C_EEPROM_ADDR_w (0xA0)
+#define I2C_EEPROM_ADDR_r (0xA1)
 
 static uint8_t debug = 0;
 static uint8_t flag_locked = 0;
