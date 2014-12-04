@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   FLASH HAL module driver.
-  *    
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
   *           + Program operations functions
@@ -29,7 +28,7 @@
       (+) Flash memory program/erase operations
       (+) Read / write protections
       (+) Prefetch on I-Code
-      
+      (+) Option Bytes programming
       
                      ##### How to use this driver #####
   ==============================================================================
@@ -105,7 +104,7 @@
   * @{
   */
 
-/** @defgroup FLASH 
+/** @defgroup FLASH FLASH HAL module driver
   * @brief FLASH HAL module driver
   * @{
   */
@@ -116,10 +115,21 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+
+/** @defgroup FLASH_Private_Variables FLASH Private Variables
+  * @{
+  */  
 /* Variables used for Erase pages under interruption*/
 FLASH_ProcessTypeDef pFlash;
-
+/**
+  * @}
+  */
+  
 /* Private function prototypes -----------------------------------------------*/
+
+/** @defgroup FLASH_Private_Functions FLASH Private Functions
+  * @{
+  */
 /* Erase operations */
 void              FLASH_PageErase(uint32_t PageAddress);
 
@@ -129,31 +139,17 @@ static void       FLASH_Program_HalfWord(uint32_t Address, uint16_t Data);
 HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout);
 static void       FLASH_SetErrorCode(void);
 
+/**
+  * @}
+  */
+
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup FLASH_Private_Functions
+/** @defgroup FLASH_Exported_Functions FLASH Exported Functions
   * @{
   */
   
-/** @defgroup HAL_FLASH_Group1 Initialization/de-initialization functions 
- *  @brief    Initialization and Configuration functions 
- *
-@verbatim    
- ===============================================================================
-              ##### Initialization and de-initialization functions #####
- ===============================================================================
-    [..]  This section provides functions allowing to:
- 
-@endverbatim
-  * @{
-  */
-
-
-/**
-  * @}
-  */  
-
-/** @defgroup HAL_FLASH_Group2 I/O operation functions 
+/** @defgroup FLASH_Exported_Functions_Group1 I/O operation functions 
  *  @brief   Data transfers functions 
  *
 @verbatim   
@@ -301,7 +297,6 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, u
 
 /**
   * @brief This function handles FLASH interrupt request.
-  * @param  None
   * @retval None
   */
 void HAL_FLASH_IRQHandler(void)
@@ -454,7 +449,7 @@ __weak void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
   * @}
   */
 
-/** @defgroup HAL_FLASH_Group3 Peripheral Control functions 
+/** @defgroup FLASH_Exported_Functions_Group2 Peripheral Control functions 
  *  @brief   management functions 
  *
 @verbatim   
@@ -471,7 +466,6 @@ __weak void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
 
 /**
   * @brief  Unlock the FLASH control register access
-  * @param  None
   * @retval HAL Status
   */
 HAL_StatusTypeDef HAL_FLASH_Unlock(void)
@@ -492,7 +486,6 @@ HAL_StatusTypeDef HAL_FLASH_Unlock(void)
 
 /**
   * @brief  Locks the FLASH control register access
-  * @param  None
   * @retval HAL Status
   */
 HAL_StatusTypeDef HAL_FLASH_Lock(void)
@@ -506,7 +499,6 @@ HAL_StatusTypeDef HAL_FLASH_Lock(void)
 
 /**
   * @brief  Unlock the FLASH Option Control Registers access.
-  * @param  None
   * @retval HAL Status
   */
 HAL_StatusTypeDef HAL_FLASH_OB_Unlock(void)
@@ -527,7 +519,6 @@ HAL_StatusTypeDef HAL_FLASH_OB_Unlock(void)
 
 /**
   * @brief  Lock the FLASH Option Control Registers access.
-  * @param  None
   * @retval HAL Status 
   */
 HAL_StatusTypeDef HAL_FLASH_OB_Lock(void)
@@ -540,7 +531,6 @@ HAL_StatusTypeDef HAL_FLASH_OB_Lock(void)
 
 /**
   * @brief  Launch the option byte loading.
-  * @param  None
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_FLASH_OB_Launch(void)
@@ -556,16 +546,15 @@ HAL_StatusTypeDef HAL_FLASH_OB_Launch(void)
   * @}
   */
 
-
-/** @defgroup HAL_FLASH_Group4 Peripheral State functions 
- *  @brief   Peripheral State functions 
+/** @defgroup FLASH_Exported_Functions_Group3 Peripheral State and Errors functions 
+ *  @brief   Peripheral Errors functions 
  *
 @verbatim   
  ===============================================================================
-                      ##### Peripheral State functions #####
+                ##### Peripheral Errors functions #####
  ===============================================================================  
     [..]
-    This subsection permit to get in run-time the status of the FLASH peripheral.
+    This subsection permit to get in run-time Errors of the FLASH peripheral.
 
 @endverbatim
   * @{
@@ -573,7 +562,6 @@ HAL_StatusTypeDef HAL_FLASH_OB_Launch(void)
 
 /**
   * @brief  Get the specific FLASH error flag.
-  * @param  None
   * @retval FLASH_ErrorCode: The returned value can be:
   *            @arg FLASH_ERROR_PG: FLASH Programming error flag 
   *            @arg FLASH_ERROR_WRP: FLASH Write protected error flag
@@ -585,8 +573,15 @@ FLASH_ErrorTypeDef HAL_FLASH_GetError(void)
   
 /**
   * @}
-  */  
-   
+  */
+
+/**
+  * @}
+  */     
+
+/** @addtogroup FLASH_Private_Functions
+  * @{
+  */   
 /**
   * @brief  Erase the specified FLASH memory page
   * @param  PageAddress: FLASH page to erase
@@ -660,7 +655,6 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
 
 /**
   * @brief  Set the specific FLASH error flag.
-  * @param  None
   * @retval None
   */
 static void FLASH_SetErrorCode(void)

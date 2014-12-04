@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    stm32f0xx_it.c
-  * @date    31/10/2014 11:25:40
+  * @date    04/12/2014 10:38:34
   * @brief   Interrupt Service Routines.
   ******************************************************************************
   *
@@ -35,7 +35,10 @@
 #include "stm32f0xx_hal.h"
 #include "stm32f0xx.h"
 #include "stm32f0xx_it.h"
+#include "cmsis_os.h"
+/* USER CODE BEGIN 0 */
 
+/* USER CODE END 0 */
 /* External variables --------------------------------------------------------*/
  
 extern void xPortSysTickHandler(void);
@@ -45,7 +48,7 @@ extern TIM_HandleTypeDef htim3;
 extern UART_HandleTypeDef huart1;
 
 /******************************************************************************/
-/*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
+/*            Cortex-M0 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
 
 /**
@@ -53,17 +56,27 @@ extern UART_HandleTypeDef huart1;
 */
 void TIM2_IRQHandler(void)
 {
-  HAL_NVIC_ClearPendingIRQ(TIM2_IRQn);
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+
+  /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+
+  /* USER CODE END TIM2_IRQn 1 */
 }
 
 /**
-* @brief This function handles USART1 global interrupt.
+* @brief This function handles USART1 global interrupt (combined with EXTI line 25).
 */
 void USART1_IRQHandler(void)
 {
-  HAL_NVIC_ClearPendingIRQ(USART1_IRQn);
+  /* USER CODE BEGIN USART1_IRQn 0 */
+
+  /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
+  /* USER CODE BEGIN USART1_IRQn 1 */
+
+  /* USER CODE END USART1_IRQn 1 */
 }
 
 /**
@@ -71,8 +84,16 @@ void USART1_IRQHandler(void)
 */
 void SysTick_Handler(void)
 {
-  xPortSysTickHandler();
+  /* USER CODE BEGIN SysTick_IRQn 0 */
+
+  /* USER CODE END SysTick_IRQn 0 */
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+    xPortSysTickHandler();
+  }
   HAL_IncTick();
+  /* USER CODE BEGIN SysTick_IRQn 1 */
+
+  /* USER CODE END SysTick_IRQn 1 */
 }
 
 /**
@@ -80,8 +101,13 @@ void SysTick_Handler(void)
 */
 void TIM3_IRQHandler(void)
 {
-  HAL_NVIC_ClearPendingIRQ(TIM3_IRQn);
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+
+  /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
+  /* USER CODE BEGIN TIM3_IRQn 1 */
+
+  /* USER CODE END TIM3_IRQn 1 */
 }
 
 /**
@@ -89,9 +115,16 @@ void TIM3_IRQHandler(void)
 */
 void EXTI0_1_IRQHandler(void)
 {
-  HAL_NVIC_ClearPendingIRQ(EXTI0_1_IRQn);
-  
+  /* USER CODE BEGIN EXTI0_1_IRQn 0 */
+
+  /* USER CODE END EXTI0_1_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+  /* USER CODE BEGIN EXTI0_1_IRQn 1 */
+
+  /* USER CODE END EXTI0_1_IRQn 1 */
 }
 
+/* USER CODE BEGIN 1 */
+
+/* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

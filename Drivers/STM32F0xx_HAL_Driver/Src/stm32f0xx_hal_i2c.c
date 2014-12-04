@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_i2c.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   I2C HAL module driver.
-  *    
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Inter Integrated Circuit (I2C) peripheral:
   *           + Initialization and de-initialization functions
@@ -23,31 +22,31 @@
         I2C_HandleTypeDef  hi2c; 
 
     (#)Initialize the I2C low level resources by implement the HAL_I2C_MspInit ()API:
-        (##) Enable the I2Cx interface clock
-        (##) I2C pins configuration
+        (++) Enable the I2Cx interface clock
+        (++) I2C pins configuration
             (+++) Enable the clock for the I2C GPIOs
             (+++) Configure I2C pins as alternate function open-drain
-        (##) NVIC configuration if you need to use interrupt process
+        (++) NVIC configuration if you need to use interrupt process
             (+++) Configure the I2Cx interrupt priority
             (+++) Enable the NVIC I2C IRQ Channel
-        (##) DMA Configuration if you need to use DMA process
-            (+++) Declare a DMA_HandleTypeDef handle structure for the transmit or receive stream
+        (++) DMA Configuration if you need to use DMA process
+            (+++) Declare a DMA_HandleTypeDef handle structure for the transmit or receive channel
             (+++) Enable the DMAx interface clock using
             (+++) Configure the DMA handle parameters
-            (+++) Configure the DMA Tx or Rx Stream
+            (+++) Configure the DMA Tx or Rx channel
             (+++) Associate the initilalized DMA handle to the hi2c DMA Tx or Rx handle
-            (+++) Configure the priority and enable the NVIC for the transfer complete interrupt on the DMA Tx or Rx Stream
+            (+++) Configure the priority and enable the NVIC for the transfer complete interrupt on the DMA Tx or Rx channel
 
     (#) Configure the Communication Clock Timing, Own Address1, Master Adressing Mode, Dual Addressing mode,
         Own Address2, Own Address2 Mask, General call and Nostretch mode in the hi2c Init structure.
 
     (#) Initialize the I2C registers by calling the HAL_I2C_Init() API:
-        (+++) These API's configures also the low level Hardware GPIO, CLOCK, CORTEX...etc)
-            by calling the customed HAL_I2C_MspInit(&hi2c) API.
+        (++) These API s configures also the low level Hardware GPIO, CLOCK, CORTEX...etc)
+             by calling the customed HAL_I2C_MspInit(&hi2c) API.
 
     (#) To check if target device is ready for communication, use the function HAL_I2C_IsDeviceReady()
 
-    (#) For I2C IO and IO MEM operations, three mode of operations are available within this driver :
+    (#) For I2C IO and IO MEM operations, three modes of operations are available within this driver :
 
     *** Polling mode IO operation ***
     =================================
@@ -186,7 +185,7 @@
   * @{
   */
 
-/** @defgroup I2C 
+/** @defgroup I2C I2C HAL module driver
   * @brief I2C HAL module driver
   * @{
   */
@@ -195,6 +194,10 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+
+/** @defgroup I2C_Private_Define I2C Private Define
+  * @{
+  */
 #define TIMING_CLEAR_MASK       ((uint32_t)0xF0FFFFFF)  /*<! I2C TIMING clear register Mask */
 #define I2C_TIMEOUT_ADDR    ((uint32_t)10000)  /* 10 s  */
 #define I2C_TIMEOUT_BUSY    ((uint32_t)25)     /* 25 ms */
@@ -205,10 +208,17 @@
 #define I2C_TIMEOUT_TCR     ((uint32_t)25)     /* 25 ms */
 #define I2C_TIMEOUT_TXIS    ((uint32_t)25)     /* 25 ms */
 #define I2C_TIMEOUT_FLAG    ((uint32_t)25)     /* 25 ms */
-
+/**
+  * @}
+  */ 
+  
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
+
+/** @defgroup I2C_Private_Functions I2C Private Functions
+  * @{
+  */
 static void I2C_DMAMasterTransmitCplt(DMA_HandleTypeDef *hdma);
 static void I2C_DMAMasterReceiveCplt(DMA_HandleTypeDef *hdma);
 static void I2C_DMASlaveTransmitCplt(DMA_HandleTypeDef *hdma);
@@ -220,9 +230,9 @@ static void I2C_DMAError(DMA_HandleTypeDef *hdma);
 static HAL_StatusTypeDef I2C_RequestMemoryWrite(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint32_t Timeout);
 static HAL_StatusTypeDef I2C_RequestMemoryRead(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint32_t Timeout);
 static HAL_StatusTypeDef I2C_WaitOnFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
-static HAL_StatusTypeDef I2C_WaitOnTXISFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Timeout);
 static HAL_StatusTypeDef I2C_WaitOnRXNEFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Timeout);
 static HAL_StatusTypeDef I2C_WaitOnSTOPFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Timeout);
+static HAL_StatusTypeDef I2C_WaitOnTXISFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Timeout);
 static HAL_StatusTypeDef I2C_IsAcknowledgeFailed(I2C_HandleTypeDef *hi2c, uint32_t Timeout);
 
 static HAL_StatusTypeDef I2C_MasterTransmit_ISR(I2C_HandleTypeDef *hi2c);
@@ -232,18 +242,22 @@ static HAL_StatusTypeDef I2C_SlaveTransmit_ISR(I2C_HandleTypeDef *hi2c);
 static HAL_StatusTypeDef I2C_SlaveReceive_ISR(I2C_HandleTypeDef *hi2c);
 
 static void I2C_TransferConfig(I2C_HandleTypeDef *hi2c,  uint16_t DevAddress, uint8_t Size, uint32_t Mode, uint32_t Request);
-/* Private functions ---------------------------------------------------------*/
+/**
+  * @}
+  */ 
+  
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup I2C_Private_Functions
+/** @defgroup I2C_Exported_Functions I2C Exported Functions
   * @{
   */
 
-/** @defgroup HAL_I2C_Group1 Initialization/de-initialization functions 
+/** @defgroup I2C_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
  ===============================================================================
-              ##### Initialization/de-initialization functions #####
+              ##### Initialization and Configuration functions #####
  ===============================================================================
     [..]  This subsection provides a set of functions allowing to initialize and 
           de-initialiaze the I2Cx peripheral:
@@ -414,7 +428,7 @@ HAL_StatusTypeDef HAL_I2C_DeInit(I2C_HandleTypeDef *hi2c)
   * @}
   */
 
-/** @defgroup HAL_I2C_Group2 I/O operation functions 
+/** @defgroup I2C_Exported_Functions_Group2 Input and Output operation functions 
  *  @brief   Data transfers functions 
  *
 @verbatim   
@@ -1519,6 +1533,7 @@ HAL_StatusTypeDef HAL_I2C_Slave_Receive_DMA(I2C_HandleTypeDef *hi2c, uint8_t *pD
     return HAL_BUSY;
   }
 }
+
 /**
   * @brief  Write an amount of data in blocking mode to a specific memory address
   * @param  hi2c : Pointer to a I2C_HandleTypeDef structure that contains
@@ -1799,6 +1814,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress,
     return HAL_BUSY;
   }
 }
+
 /**
   * @brief  Write an amount of data in no-blocking mode with Interrupt to a specific memory address
   * @param  hi2c : Pointer to a I2C_HandleTypeDef structure that contains
@@ -1983,6 +1999,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read_IT(I2C_HandleTypeDef *hi2c, uint16_t DevAddre
     return HAL_BUSY; 
   }   
 }
+
 /**
   * @brief  Write an amount of data in no-blocking mode with DMA to a specific memory address
   * @param  hi2c : Pointer to a I2C_HandleTypeDef structure that contains
@@ -2354,7 +2371,7 @@ void HAL_I2C_EV_IRQHandler(I2C_HandleTypeDef *hi2c)
     }
   } 
 }
-
+ 
 /**
   * @brief  This function handles I2C error interrupt request.
   * @param  hi2c : Pointer to a I2C_HandleTypeDef structure that contains
@@ -2493,7 +2510,7 @@ __weak void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
   * @}
   */
 
-/** @defgroup I2C_Group3 Peripheral State and Errors functions
+/** @defgroup I2C_Exported_Functions_Group3 Peripheral State and Errors functions
  *  @brief   Peripheral State and Errors functions
  *
 @verbatim   
@@ -2531,8 +2548,16 @@ uint32_t HAL_I2C_GetError(I2C_HandleTypeDef *hi2c)
 
 /**
   * @}
-  */  
+  */
 
+/**
+  * @}
+  */   
+
+/** @addtogroup I2C_Private_Functions
+  * @{
+  */
+  
 /**
   * @brief  Handle Interrupt Flags Master Transmit Mode
   * @param  hi2c : Pointer to a I2C_HandleTypeDef structure that contains
@@ -3022,7 +3047,6 @@ static HAL_StatusTypeDef I2C_RequestMemoryRead(I2C_HandleTypeDef *hi2c, uint16_t
   
   return HAL_OK;
 }
-
 
 /**
   * @brief  DMA I2C master transmit process complete callback.
@@ -4063,11 +4087,7 @@ static void I2C_TransferConfig(I2C_HandleTypeDef *hi2c,  uint16_t DevAddress, ui
 
 /**
   * @}
-  */
-
-/**
-  * @}
-  */
+  */  
 
 #endif /* HAL_I2C_MODULE_ENABLED */
 /**

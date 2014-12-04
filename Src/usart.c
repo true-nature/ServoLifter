@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : USART.c
-  * Date               : 31/10/2014 11:25:39
+  * Date               : 04/12/2014 10:38:34
   * Description        : This file provides code for the configuration
   *                      of the USART instances.
   ******************************************************************************
@@ -69,6 +69,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
   GPIO_InitTypeDef GPIO_InitStruct;
   if(huart->Instance==USART1)
   {
+  /* USER CODE BEGIN USART1_MspInit 0 */
+
+  /* USER CODE END USART1_MspInit 0 */
     /* Peripheral clock enable */
     __USART1_CLK_ENABLE();
   
@@ -86,6 +89,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     /* Peripheral interrupt init*/
     HAL_NVIC_SetPriority(USART1_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
+  /* USER CODE BEGIN USART1_MspInit 1 */
+
+  /* USER CODE END USART1_MspInit 1 */
   }
 }
 
@@ -94,6 +100,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
   if(huart->Instance==USART1)
   {
+  /* USER CODE BEGIN USART1_MspDeInit 0 */
+
+  /* USER CODE END USART1_MspDeInit 0 */
     /* Peripheral clock disable */
     __USART1_CLK_DISABLE();
   
@@ -105,8 +114,16 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
     /* Peripheral interrupt Deinit*/
     HAL_NVIC_DisableIRQ(USART1_IRQn);
+
+  /* USER CODE BEGIN USART1_MspDeInit 1 */
+
+  /* USER CODE END USART1_MspDeInit 1 */
   }
 } 
+
+/* USER CODE BEGIN 1 */
+
+/* USER CODE END 1 */
 
 /**
   * @}

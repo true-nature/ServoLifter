@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
@@ -161,3 +161,4 @@ typedef enum
 #endif /* ___STM32F0xx_HAL_DEF */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

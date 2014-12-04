@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f0xx.c
   * @author  MCD Application Team
-  * @version V2.0.1
-  * @date    18-June-2014
+  * @version V2.1.0
+  * @date    03-Oct-2014
   * @brief   CMSIS Cortex-M0 Device Peripheral Access Layer System Source File.
   *
   * 1. This file provides two functions and one global variable to be called from
@@ -185,7 +185,7 @@ void SystemInit(void)
 #if defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xB)
   /* Reset USART2SW[1:0] USART1SW[1:0], I2C1SW, CECSW, USBSW and ADCSW bits */
   RCC->CFGR3 &= (uint32_t)0xFFFCFE2C;
-#elif defined (STM32F091xC)
+#elif defined (STM32F091xC) || defined (STM32F098xx)
   /* Reset USART3SW[1:0], USART2SW[1:0], USART1SW[1:0], I2C1SW, CECSW bits */
   RCC->CFGR3 &= (uint32_t)0xFFF0FFAC;
 #else
@@ -264,23 +264,22 @@ void SystemCoreClockUpdate (void)
         /* HSE used as PLL clock source : SystemCoreClock = HSE/PREDIV * PLLMUL */
         SystemCoreClock = (HSE_VALUE/predivfactor) * pllmull;
       }
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx)
       else if (pllsource == RCC_CFGR_PLLSRC_HSI48_PREDIV)
       {
         /* HSI48 used as PLL clock source : SystemCoreClock = HSI48/PREDIV * PLLMUL */
         SystemCoreClock = (HSI48_VALUE/predivfactor) * pllmull;
       }
-#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || STM32F091xC || STM32F098xx */
       else
       {
-#if defined(STM32F042x6) || defined(STM32F048xx) || \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx)
         /* HSI used as PLL clock source : SystemCoreClock = HSI/PREDIV * PLLMUL */
         SystemCoreClock = (HSI_VALUE/predivfactor) * pllmull;
 #else
         /* HSI used as PLL clock source : SystemCoreClock = HSI/2 * PLLMUL */
         SystemCoreClock = (HSI_VALUE >> 1) * pllmull;
-#endif /* STM32F042x6 || STM32F048xx || STM32F071xB || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F071xB || STM32F072xB || STM32F078xx || STM32F091xC || STM32F098xx */
       }
       break;
     default: /* HSI used as system clock */

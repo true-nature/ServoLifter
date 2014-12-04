@@ -1,9 +1,9 @@
 /**
   ******************************************************************************
-  * File Name          : gpio.c
-  * Date               : 04/12/2014 10:38:32
-  * Description        : This file provides code for the configuration
-  *                      of all used GPIO pins.
+  * File Name          : stm32f0xx_hal_msp.c
+  * Date               : 04/12/2014 10:38:34
+  * Description        : This file provides code for the MSP Initialization 
+  *                      and de-Initialization codes.
   ******************************************************************************
   *
   * COPYRIGHT(c) 2014 STMicroelectronics
@@ -32,59 +32,34 @@
   *
   ******************************************************************************
   */
-
 /* Includes ------------------------------------------------------------------*/
-#include "gpio.h"
+#include "stm32f0xx_hal.h"
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
 
-/*----------------------------------------------------------------------------*/
-/* Configure GPIO                                                             */
-/*----------------------------------------------------------------------------*/
+/**
+  * Initializes the Global MSP.
+  */
+void HAL_MspInit(void)
+{
+  /* USER CODE BEGIN MspInit 0 */
+
+  /* USER CODE END MspInit 0 */
+
+  /* System interrupt init*/
+/* SysTick_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+
+  /* USER CODE BEGIN MspInit 1 */
+
+  /* USER CODE END MspInit 1 */
+}
+
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
-
-/** Configure pins as 
-        * Analog 
-        * Input 
-        * Output
-        * EVENT_OUT
-        * EXTI
-*/
-void MX_GPIO_Init(void)
-{
-
-  GPIO_InitTypeDef GPIO_InitStruct;
-
-  /* GPIO Ports Clock Enable */
-  __GPIOA_CLK_ENABLE();
-  __GPIOB_CLK_ENABLE();
-  __GPIOC_CLK_ENABLE();
-
-  /*Configure GPIO pin : PA0 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PC8 PC9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_1_IRQn, 3, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
-
-}
-
-/* USER CODE BEGIN 2 */
-
-/* USER CODE END 2 */
 
 /**
   * @}

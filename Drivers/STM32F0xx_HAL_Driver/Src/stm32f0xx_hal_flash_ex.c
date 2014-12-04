@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_flash_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   Extended FLASH HAL module driver.
-  *    
   *          This file provides firmware functions to manage the following 
   *          functionalities of the FLASH peripheral:
   *           + Extended Initialization/de-initialization functions
@@ -23,9 +22,9 @@
   [..] This driver provides functions to configure and program the FLASH memory 
        of all STM32F0xxx devices. It includes
        
-        (++) Set/Reset the write protection
-        (++) Program the user Option Bytes
-        (++) Get the Read protection Level
+        (+) Set/Reset the write protection
+        (+) Program the user Option Bytes
+        (+) Get the Read protection Level
   
   @endverbatim
   ******************************************************************************
@@ -65,7 +64,7 @@
   * @{
   */
 
-/** @defgroup FLASHEx 
+/** @defgroup FLASHEx FLASHEx Extended HAL module driver
   * @brief FLASH Extended HAL module driver
   * @{
   */
@@ -74,12 +73,34 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+
+/** @addtogroup FLASHEx_Private_Constants FLASHEx Private Constants
+  * @{
+  */ 
 #define HAL_FLASH_TIMEOUT_VALUE   ((uint32_t)50000)/* 50 s */
+
+/**
+  * @}
+  */
+  
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+/** @addtogroup FLASHEx_Private_Variables FLASHEx Private Variables
+  * @{
+  */ 
+  
 /* Variables used for Erase pages under interruption*/
 extern FLASH_ProcessTypeDef pFlash;
+
+/**
+  * @}
+  */
+    
 /* Private function prototypes -----------------------------------------------*/
+/** @addtogroup FLASHEx_Private_Functions FLASHEx Private Functions
+  * @{
+  */
+  
 /* Erase operations */
 extern void              FLASH_PageErase(uint32_t PageAddress);
 static void              FLASH_MassErase(void);
@@ -94,33 +115,27 @@ static uint32_t          FLASH_OB_GetWRP(void);
 static FlagStatus        FLASH_OB_GetRDP(void);
 static uint8_t           FLASH_OB_GetUser(void);
 
+/**
+  * @}
+  */
+
+/** @defgroup FLASHEx_Extern_Functions FLASHEx Extern Functions
+  * @{
+  */
 /* Private functions ---------------------------------------------------------*/
 extern HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout);
-
-/** @defgroup FLASHEx_Private_Functions
-  * @{
-  */
-
-/** @defgroup FLASHEx_Group1 Extended Initialization/de-initialization functions
- *  @brief    Extended Initialization and Configuration functions 
- *
-@verbatim    
- ===============================================================================
-              ##### Initialization/de-initialization functions #####
- ===============================================================================
- 
-@endverbatim
-  * @{
-  */
-
 
 /**
   * @}
   */
 
-/** @defgroup FLASHEx__Group2 Extended I/O operation functions
+/** @defgroup FLASHEx_Exported_Functions FLASHEx Exported Functions
+  * @{
+  */
+
+/** @defgroup FLASHEx_Exported_Functions_Group2 Extended I/O operation functions
   * @brief    Extended I/O operation functions
- *
+  *
 @verbatim   
  ===============================================================================
                       ##### IO operation functions #####
@@ -272,7 +287,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
   * @}
   */
     
-/** @defgroup FLASHEx__Group3 Extended Peripheral Control functions
+/** @defgroup FLASHEx_Exported_Functions_Group3 Extended Peripheral Control functions
   * @brief    Extended Peripheral Control functions
   *
 @verbatim   
@@ -293,7 +308,6 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
   *         The function HAL_FLASH_OB_Unlock() should be called before to unlock the options bytes
   *         The function HAL_FLASH_OB_Launch() should be called after to force the reload of the options bytes 
   *         (system reset will occur)
-  * @param  None
   * @retval HAL status
   */
 
@@ -423,9 +437,15 @@ void HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit)
   */
 
 /**
+  * @}
+  */
+
+/** @defgroup FLASHEx_Private_Functions FLASHEx Private Functions
+  * @{
+  */  
+
+/**
   * @brief  Mass erase of FLASH memory
-  * @param  None
-  * 
   * @retval None
   */
 static void FLASH_MassErase(void)
@@ -459,9 +479,10 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WriteProtectPage)
 #endif /* STM32F030x8 || STM32F051x8 || STM32F058xx */
 #endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F038xx || STM32F051x8 || STM32F042x6 || STM32F048xx || STM32F058xx */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
   uint16_t WRP0_Data = 0xFFFF, WRP1_Data = 0xFFFF, WRP2_Data = 0xFFFF, WRP3_Data = 0xFFFF;
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx  || STM32F091xC || STM32F098xx */
   
   /* Check the parameters */
   assert_param(IS_OB_WRP(WriteProtectPage));
@@ -475,12 +496,18 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WriteProtectPage)
 #endif /* STM32F030x8 || STM32F051x8 || STM32F058xx */
 #endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F038xx || STM32F051x8 || STM32F042x6 || STM32F048xx || STM32F058xx */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
   WRP0_Data = (uint16_t)(WriteProtectPage & OB_WRP_PAGES0TO15MASK);
   WRP1_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES16TO31MASK) >> 8);
   WRP2_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES32TO47MASK) >> 16);
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
   WRP3_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES48TO63MASK) >> 24); 
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#if defined(STM32F091xC) || defined(STM32F098xx)
+  WRP3_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES48TO127MASK) >> 24); 
+#endif /* STM32F091xC || STM32F098xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx  || STM32F091xC || STM32F098xx */
 
   /* Wait for last operation to be completed */
   status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
@@ -501,7 +528,8 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WriteProtectPage)
     }
 
 #if defined(STM32F030x8) || defined(STM32F051x8) || defined(STM32F058xx) || \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
     if((status == HAL_OK) && (WRP1_Data != 0xFF))
     {
       OB->WRP1 &= WRP1_Data;
@@ -510,9 +538,10 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WriteProtectPage)
       status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
     }
 #endif /* STM32F030x8 || STM32F051x8 || STM32F058xx || STM32F071xB || 
-          STM32F072xB || STM32F078xx */
+          STM32F072xB || STM32F078xx  || STM32F091xC || STM32F098xx */
           
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
     if((status == HAL_OK) && (WRP2_Data != 0xFF))
     {
       OB->WRP2 &= WRP2_Data;
@@ -528,7 +557,7 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WriteProtectPage)
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
     }
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx  || STM32F091xC || STM32F098xx */
 
     /* if the program operation is completed, disable the OPTPG Bit */
     CLEAR_BIT(FLASH->CR, FLASH_CR_OPTPG);
@@ -559,9 +588,10 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WriteProtectPage)
 #endif /* STM32F030x8 || STM32F051x8 || STM32F058xx */
 #endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F038xx || STM32F051x8 || STM32F042x6 || STM32F048xx || STM32F058xx */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
   uint16_t WRP0_Data = 0xFFFF, WRP1_Data = 0xFFFF, WRP2_Data = 0xFFFF, WRP3_Data = 0xFFFF;
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx  || STM32F091xC || STM32F098xx */
   
   /* Check the parameters */
   assert_param(IS_OB_WRP(WriteProtectPage));
@@ -574,12 +604,18 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WriteProtectPage)
 #endif /* STM32F030x8 || STM32F051x8 || STM32F058xx */
 #endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F038xx || STM32F051x8 || STM32F042x6 || STM32F048xx || STM32F058xx */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
   WRP0_Data = (uint16_t)(WriteProtectPage & OB_WRP_PAGES0TO15MASK);
   WRP1_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES16TO31MASK) >> 8);
   WRP2_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES32TO47MASK) >> 16);
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
   WRP3_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES48TO63MASK) >> 24); 
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#if defined(STM32F091xC) || defined(STM32F098xx)
+  WRP3_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES48TO127MASK) >> 24); 
+#endif /* STM32F091xC || STM32F098xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx  || STM32F091xC || STM32F098xx */
 
   /* Wait for last operation to be completed */
   status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
@@ -600,7 +636,8 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WriteProtectPage)
     }
 
 #if defined(STM32F030x8) || defined(STM32F051x8) || defined(STM32F058xx) || \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
     if((status == HAL_OK) && (WRP1_Data != 0xFF))
     {
       OB->WRP1 |= WRP1_Data;
@@ -609,9 +646,10 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WriteProtectPage)
       status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
     }
 #endif /* STM32F030x8 || STM32F051x8 || STM32F058xx || STM32F071xB || 
-          STM32F072xB || STM32F078xx */
+          STM32F072xB || STM32F078xx  || STM32F091xC || STM32F098xx */
           
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
     if((status == HAL_OK) && (WRP2_Data != 0xFF))
     {
       OB->WRP2 |= WRP2_Data;
@@ -627,7 +665,7 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WriteProtectPage)
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
     }
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx  || STM32F091xC || STM32F098xx */
 
     /* if the program operation is completed, disable the OPTPG Bit */
     CLEAR_BIT(FLASH->CR, FLASH_CR_OPTPG);
@@ -696,10 +734,10 @@ static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t UserConfig)
   assert_param(IS_OB_BOOT1((UserConfig&OB_BOOT1_SET)));
   assert_param(IS_OB_VDDA_ANALOG((UserConfig&OB_VDDA_ANALOG_ON)));
   assert_param(IS_OB_SRAM_PARITY((UserConfig&OB_RAM_PARITY_CHECK_RESET)));
-#if defined(STM32F042x6) || defined(STM32F048xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F091xC) || defined(STM32F098xx)
   assert_param(IS_OB_BOOT_SEL((UserConfig&OB_BOOT_SEL_SET)));
   assert_param(IS_OB_BOOT0((UserConfig&OB_BOOT0_SET)));
-#endif /* STM32F042x6 || STM32F048xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F091xC || STM32F098xx */
 
   /* Wait for last operation to be completed */
   status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
@@ -712,11 +750,11 @@ static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t UserConfig)
     /* Enable the Option Bytes Programming operation */
     SET_BIT(FLASH->CR, FLASH_CR_OPTPG); 
            
-#if defined(STM32F042x6) || defined(STM32F048xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F091xC) || defined(STM32F098xx)
     OB->USER = UserConfig;
 #else
     OB->USER = (UserConfig | 0x88);
-#endif /* STM32F042x6 || STM32F048xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F091xC || STM32F098xx */
   
     /* Wait for last operation to be completed */
     status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
@@ -771,7 +809,6 @@ static HAL_StatusTypeDef FLASH_OB_ProgramData(uint32_t Address, uint8_t Data)
 
 /**
   * @brief  Return the FLASH Write Protection Option Bytes value.
-  * @param  None
   * @retval The FLASH Write Protection Option Bytes value
   */
 static uint32_t FLASH_OB_GetWRP(void)
@@ -782,7 +819,6 @@ static uint32_t FLASH_OB_GetWRP(void)
 
 /**
   * @brief  Returns the FLASH Read Protection level.
-  * @param  None
   * @retval FLASH ReadOut Protection Status:
   *           - SET, when OB_RDP_Level_1 or OB_RDP_Level_2 is set
   *           - RESET, when OB_RDP_Level_0 is set
@@ -801,7 +837,6 @@ static FlagStatus FLASH_OB_GetRDP(void)
 
 /**
   * @brief  Return the FLASH User Option Byte value.
-  * @param  None
   * @retval The FLASH User Option Bytes values: IWDG_SW(Bit0), RST_STOP(Bit1), RST_STDBY(Bit2), BOOT1(Bit4),
   *         VDDA_Analog_Monitoring(Bit5) and SRAM_Parity_Enable(Bit6).
   */

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_uart_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   Header file of UART HAL Extension module.
   ******************************************************************************
   * @attention
@@ -56,15 +56,16 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup UARTEx_Exported_Constants
+/** @defgroup UARTEx_Exported_Constants UARTEx Exported Constants
   * @{
   */
   
-/** @defgroup UARTEx_Word_Length UART Word Length
+/** @defgroup UARTEx_Word_Length UARTEx Word Length
   * @{
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || \
-    defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx)
+    defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
+    defined (STM32F091xC) || defined (STM32F098xx)
 #define UART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)
 #define UART_WORDLENGTH_8B                  ((uint32_t)0x00000000)
 #define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
@@ -77,16 +78,18 @@
 #define IS_UART_WORD_LENGTH(LENGTH) (((LENGTH) == UART_WORDLENGTH_8B) || \
                                      ((LENGTH) == UART_WORDLENGTH_9B))
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || \
-          defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) */
+          defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
+          defined (STM32F091xC) || defined (STM32F098xx) */
 /**
   * @}
   */
 
-/** @defgroup UARTEx_AutoBaud_Rate_Mode    UART Advanced Feature AutoBaud Rate Mode
+/** @defgroup UARTEx_AutoBaud_Rate_Mode    UARTEx Advanced Feature AutoBaud Rate Mode
   * @{
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || \
-    defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx)
+    defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
+    defined (STM32F091xC) || defined (STM32F098xx)
 #define UART_ADVFEATURE_AUTOBAUDRATE_ONSTARTBIT    ((uint32_t)0x0000)
 #define UART_ADVFEATURE_AUTOBAUDRATE_ONFALLINGEDGE ((uint32_t)USART_CR2_ABRMODE_0)
 #define UART_ADVFEATURE_AUTOBAUDRATE_ON0X7FFRAME   ((uint32_t)USART_CR2_ABRMODE_1)
@@ -101,14 +104,15 @@
 #define IS_UART_ADVFEATURE_AUTOBAUDRATEMODE(MODE)  (((MODE) == UART_ADVFEATURE_AUTOBAUDRATE_ONSTARTBIT) || \
                                                     ((MODE) == UART_ADVFEATURE_AUTOBAUDRATE_ONFALLINGEDGE))
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || \
-          defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) */
+          defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
+          defined (STM32F091xC) || defined (STM32F098xx) */
 /**
   * @}
   */  
   
 
 #if !defined(STM32F030x6) && !defined(STM32F030x8) 
-/** @defgroup UARTEx_LIN    UART Local Interconnection Network mode
+/** @defgroup UARTEx_LIN    UARTEx Local Interconnection Network mode
   * @{
   */
 #define UART_LIN_DISABLE            ((uint32_t)0x00000000)
@@ -119,7 +123,7 @@
   * @}
   */ 
   
-/** @defgroup UARTEx_LIN_Break_Detection  UART LIN Break Detection
+/** @defgroup UARTEx_LIN_Break_Detection  UARTEx LIN Break Detection
   * @{
   */
 #define UART_LINBREAKDETECTLENGTH_10B            ((uint32_t)0x00000000)
@@ -131,9 +135,7 @@
   */   
 #endif /* !defined(STM32F030x6) && !defined(STM32F030x8) */  
 
-
-
-/** @defgroup UART_Flags     UART Status Flags
+/** @defgroup UART_Flags     UARTEx Status Flags
   *        Elements values convention: 0xXXXX
   *           - 0xXXXX  : Flag mask in the ISR register
   * @{
@@ -170,7 +172,7 @@
   * @}
   */
 
-/** @defgroup UART_Interrupt_definition   UART Interrupts Definition
+/** @defgroup UART_Interrupt_definition   UARTEx Interrupts Definition
   *        Elements values convention: 0000ZZZZ0XXYYYYYb
   *           - YYYYY  : Interrupt source position in the XX register (5bits)
   *           - XX  : Interrupt source register (2bits)
@@ -198,7 +200,7 @@
   */
 
 
-/** @defgroup UART_IT_CLEAR_Flags  UART Interruption Clear Flags
+/** @defgroup UART_IT_CLEAR_Flags  UARTEx Interruption Clear Flags
   * @{
   */
 #define UART_CLEAR_PEF                       USART_ICR_PECF            /*!< Parity Error Clear Flag */          
@@ -221,7 +223,7 @@
   * @}
   */ 
 
-/** @defgroup UART_Request_Parameters UART Request Parameters
+/** @defgroup UART_Request_Parameters UARTEx Request Parameters
   * @{
   */
 #define UART_AUTOBAUD_REQUEST            ((uint32_t)USART_RQR_ABRRQ)        /*!< Auto-Baud Rate Request */     
@@ -246,7 +248,7 @@
   */
   
 #if !defined(STM32F030x6) && !defined(STM32F030x8)   
-/** @defgroup UART_Stop_Mode_Enable   UART Advanced Feature Stop Mode Enable
+/** @defgroup UART_Stop_Mode_Enable   UARTEx Advanced Feature Stop Mode Enable
   * @{
   */
 #define UART_ADVFEATURE_STOPMODE_DISABLE      ((uint32_t)0x00000000)
@@ -277,7 +279,7 @@
   
 /* Exported macro ------------------------------------------------------------*/
 
-/** @defgroup UARTEx_Exported_Macros
+/** @defgroup UARTEx_Exported_Macros UARTEx Exported Macros
   * @{
   */
 
@@ -403,6 +405,98 @@
       (__CLOCKSOURCE__) = UART_CLOCKSOURCE_UNDEFINED;         \
     }                                                         \
   } while(0)   
+#elif defined(STM32F091xC) || defined (STM32F098xx)
+#define __HAL_UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
+  do {                                                        \
+    if((__HANDLE__)->Instance == USART1)                      \
+    {                                                         \
+       switch(__HAL_RCC_GET_USART1_SOURCE())                  \
+       {                                                      \
+        case RCC_USART1CLKSOURCE_PCLK1:                       \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_PCLK1;         \
+          break;                                              \
+        case RCC_USART1CLKSOURCE_HSI:                         \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_HSI;           \
+          break;                                              \
+        case RCC_USART1CLKSOURCE_SYSCLK:                      \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_SYSCLK;        \
+          break;                                              \
+        case RCC_USART1CLKSOURCE_LSE:                         \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_LSE;           \
+          break;                                              \
+        default:                                              \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_UNDEFINED;     \
+          break;                                              \
+       }                                                      \
+    }                                                         \
+    else if((__HANDLE__)->Instance == USART2)                 \
+    {                                                         \
+       switch(__HAL_RCC_GET_USART2_SOURCE())                  \
+       {                                                      \
+        case RCC_USART2CLKSOURCE_PCLK1:                       \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_PCLK1;         \
+          break;                                              \
+        case RCC_USART2CLKSOURCE_HSI:                         \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_HSI;           \
+          break;                                              \
+        case RCC_USART2CLKSOURCE_SYSCLK:                      \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_SYSCLK;        \
+          break;                                              \
+        case RCC_USART2CLKSOURCE_LSE:                         \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_LSE;           \
+          break;                                              \
+        default:                                              \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_UNDEFINED;     \
+          break;                                              \
+       }                                                      \
+    }                                                         \
+    else if((__HANDLE__)->Instance == USART3)                 \
+    {                                                         \
+       switch(__HAL_RCC_GET_USART3_SOURCE())                  \
+       {                                                      \
+        case RCC_USART3CLKSOURCE_PCLK1:                       \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_PCLK1;         \
+          break;                                              \
+        case RCC_USART3CLKSOURCE_HSI:                         \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_HSI;           \
+          break;                                              \
+        case RCC_USART3CLKSOURCE_SYSCLK:                      \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_SYSCLK;        \
+          break;                                              \
+        case RCC_USART3CLKSOURCE_LSE:                         \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_LSE;           \
+          break;                                              \
+        default:                                              \
+          (__CLOCKSOURCE__) = UART_CLOCKSOURCE_UNDEFINED;     \
+          break;                                              \
+       }                                                      \
+    }                                                         \
+    else if((__HANDLE__)->Instance == USART4)                 \
+    {                                                         \
+      (__CLOCKSOURCE__) = UART_CLOCKSOURCE_PCLK1;             \
+    }                                                         \
+    else if((__HANDLE__)->Instance == USART5)                 \
+    {                                                         \
+      (__CLOCKSOURCE__) = UART_CLOCKSOURCE_PCLK1;             \
+    }                                                         \
+    else if((__HANDLE__)->Instance == USART6)                 \
+    {                                                         \
+      (__CLOCKSOURCE__) = UART_CLOCKSOURCE_PCLK1;             \
+    }                                                         \
+    else if((__HANDLE__)->Instance == USART7)                 \
+    {                                                         \
+      (__CLOCKSOURCE__) = UART_CLOCKSOURCE_PCLK1;             \
+    }                                                         \
+    else if((__HANDLE__)->Instance == USART8)                 \
+    {                                                         \
+      (__CLOCKSOURCE__) = UART_CLOCKSOURCE_PCLK1;             \
+    }                                                         \
+    else                                                      \
+    {                                                         \
+      (__CLOCKSOURCE__) = UART_CLOCKSOURCE_UNDEFINED;         \
+    }                                                         \
+  } while(0)
+  
 #endif /* defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) */
   
 
@@ -416,7 +510,8 @@
   * @retval none
   */  
 #if defined (STM32F042x6) || defined (STM32F048xx) || \
-    defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx)
+    defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
+    defined (STM32F091xC) || defined (STM32F098xx)
 #define __HAL_UART_MASK_COMPUTATION(__HANDLE__)                       \
   do {                                                                \
   if ((__HANDLE__)->Init.WordLength == UART_WORDLENGTH_9B)            \
@@ -480,26 +575,60 @@
   }                                                                   \
 } while(0) 
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || \
-          defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) */
+          defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
+          defined (STM32F091xC) || defined (STM32F098xx) */
 /**
   * @}
   */
 
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup UARTEx_Exported_Functions
+  * @{
+  */
+
+/** @addtogroup UARTEx_Exported_Functions_Group1
+  * @brief    Extended Initialization and Configuration Functions
+  * @{
+  */
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t UART_DEPolarity, uint32_t UART_DEAssertionTime, uint32_t UART_DEDeassertionTime);
 HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLength);
 HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huart, UART_WakeUpTypeDef WakeUpSelection);
 HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UARTEx_DisableStopMode(UART_HandleTypeDef *huart);
+/**
+  * @}
+  */
+
+/** @addtogroup UARTEx_Exported_Functions_Group2
+  * @brief    Extended I/O operation functions
+  * @{
+  */
+  
 /* I/O operation functions  ***************************************************/
 void HAL_UART_IRQHandler(UART_HandleTypeDef *huart);
 void HAL_UART_WakeupCallback(UART_HandleTypeDef *huart);
+/**
+  * @}
+  */
+
+/** @addtogroup UARTEx_Exported_Functions_Group3
+  * @brief    Extended Peripheral Control functions
+  * @{
+  */
+
 /* Peripheral Control functions  **********************************************/
 void UART_AdvFeatureConfig(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *huart, uint32_t AddressLength);
 HAL_StatusTypeDef HAL_LIN_SendBreak(UART_HandleTypeDef *huart);
+/**
+  * @}
+  */
 /* Peripheral State functions  ************************************************/
+
+/**
+  * @}
+  */ 
 
 
 /**
@@ -517,3 +646,4 @@ HAL_StatusTypeDef HAL_LIN_SendBreak(UART_HandleTypeDef *huart);
 #endif /* __STM32F0xx_HAL_UART_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

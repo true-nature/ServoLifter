@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   Extended RCC HAL module driver
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
@@ -32,7 +32,7 @@
               (+++) Enable automatic calibration and frequency error counter feature
 
           (##) A polling function is provided to wait for complete Synchronization
-              (+++) Call function 'HAL_RCCEx_CRSWaitSynchronization()'
+              (+++) Call function HAL_RCCEx_CRSWaitSynchronization()
               (+++) According to CRS status, user can decide to adjust again the calibration or continue
                         application if synchronization is OK
               
@@ -48,12 +48,12 @@
 
       (#) To use IT mode, user needs to handle it in calling different macros available to do it
             (__HAL_RCC_CRS_XXX_IT). Interuptions will go through RCC Handler (RCC_IRQn/RCC_CRS_IRQHandler)
-              (+++) Call function HAL_RCCEx_CRSConfig()
-              (+++) Enable RCC_IRQn (thnaks to NVIC functions)
-              (+++) Enable CRS IT (__HAL_RCC_CRS_ENABLE_IT)
-              [+++) Implement CRS status management in RCC_CRS_IRQHandler
+              (++) Call function HAL_RCCEx_CRSConfig()
+              (++) Enable RCC_IRQn (thnaks to NVIC functions)
+              (++) Enable CRS IT (__HAL_RCC_CRS_ENABLE_IT)
+              (++) Implement CRS status management in RCC_CRS_IRQHandler
 
-      (#) To force a SYNC EVENT, user can use function 'HAL_RCCEx_CRSSoftwareSynchronizationGenerate()'. Function can be 
+      (#) To force a SYNC EVENT, user can use function HAL_RCCEx_CRSSoftwareSynchronizationGenerate(). Function can be 
             called before calling HAL_RCCEx_CRSConfig (for instance in Systick handler)
             
   @endverbatim
@@ -94,7 +94,7 @@
   * @{
   */
 
-/** @defgroup RCCEx
+/** @defgroup RCCEx RCCEx Extended HAL module driver
   * @brief RCC Extension HAL module driver.
   * @{
   */
@@ -103,28 +103,39 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup RCCEx_Private_Define RCCEx Private Define
+  * @{
+  */
 #define HSI48_TIMEOUT_VALUE         ((uint32_t)100)  /* 100 ms */
 
 /* Bit position in register */
 #define CRS_CFGR_FELIM_BITNUMBER    16
 #define CRS_CR_TRIM_BITNUMBER       8
 #define CRS_ISR_FECAP_BITNUMBER     16
-
+/**
+  * @}
+  */
+  
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+/** @defgroup RCCEx_Private_Variables RCCEx Private Variables
+  * @{
+  */
 const uint8_t PLLMULFactorTable[16] = { 2,  3,  4,  5,  6,  7,  8,  9,
                                        10, 11, 12, 13, 14, 15, 16, 16};
 const uint8_t PredivFactorTable[16] = { 1, 2,  3,  4,  5,  6,  7,  8,
                                          9,10, 11, 12, 13, 14, 15, 16};
-
+/**
+  * @}
+  */
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup RCCEx_Private_Functions
+/** @defgroup RCCEx_Exported_Functions RCCEx Exported Functions
   * @{
   */
 
-/** @defgroup RCCEx_Group1 Extended Peripheral Control functions 
+/** @defgroup RCCEx_Exported_Functions_Group1 Extended Peripheral Control functions 
  *  @brief  Extended RCC clocks control functions 
  *
 @verbatim   
@@ -180,7 +191,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       /* Get timeout */
       tickstart = HAL_GetTick();
       
-      /* Wait till HSE is disabled */
+      /* Wait till HSE is ready */
       while(__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) != RESET)
       {
         if((HAL_GetTick() - tickstart) > HSE_TIMEOUT_VALUE)
@@ -193,12 +204,12 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       __HAL_RCC_HSE_CONFIG((uint8_t)RCC_OscInitStruct->HSEState);
 
       /* Check the HSE State */
-      if(RCC_OscInitStruct->HSEState == RCC_HSE_ON)
+      if(RCC_OscInitStruct->HSEState != RCC_HSE_OFF)
       {
         /* Get timeout */
         tickstart = HAL_GetTick();
-
-        /* Wait till HSE is ready */
+      
+        /* Wait till HSE is ready */  
         while(__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) == RESET)
         {
           if((HAL_GetTick() - tickstart) > HSE_TIMEOUT_VALUE)
@@ -212,7 +223,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         /* Get timeout */
         tickstart = HAL_GetTick();
       
-        /* Wait till HSE is bypassed or disabled */
+        /* Wait till HSE is ready */  
         while(__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) != RESET)
         {
           if((HAL_GetTick() - tickstart) > HSE_TIMEOUT_VALUE)
@@ -461,7 +472,8 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     }
   }
 
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
   /*----------------------------- HSI48 Configuration --------------------------*/
   if(((RCC_OscInitStruct->OscillatorType) & RCC_OSCILLATORTYPE_HSI48) == RCC_OSCILLATORTYPE_HSI48)
   {
@@ -516,7 +528,8 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       }
     }
   }
-#endif /* STM32F042x6 || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
 
   /*-------------------------------- PLL Configuration -----------------------*/
   /* Check the parameters */
@@ -615,7 +628,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   *         clock source is ready (clock stable after startup delay or PLL locked).
   *         If a clock source which is not yet ready is selected, the switch will
   *         occur when the clock source will be ready.
-  * @retval HAL status
+  * @retval None
   */
 HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, uint32_t FLatency)
 {
@@ -672,7 +685,8 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
           return HAL_ERROR;
         }
       }
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
       /* HSI48 is selected as System Clock Source */
       else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_HSI48)
       {
@@ -682,7 +696,8 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
           return HAL_ERROR;
         }
       }
-#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
       /* HSI is selected as System Clock Source */
       else
       {
@@ -717,7 +732,8 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
           }
         }
       }
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
       else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_HSI48)
       {
         while (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_HSI48)
@@ -728,7 +744,8 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
           }
         }
       }
-#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
       else
       {
         while(__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_HSI)
@@ -774,7 +791,8 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
           return HAL_ERROR;
         }
       }
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
       /* HSI48 is selected as System Clock Source */
       else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_HSI48)
       {
@@ -784,7 +802,8 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
           return HAL_ERROR;
         }
       }
-#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
       /* HSI is selected as System Clock Source */
       else
       {
@@ -819,7 +838,8 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
           }
         }
       }
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
       else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_HSI48)
       {
         while (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_HSI48)
@@ -830,7 +850,8 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
           }
         }
       }
-#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
       else
       {
         while(__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_HSI)
@@ -896,7 +917,6 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   * @note   Each time SYSCLK changes, this function must be called to update the
   *         right SYSCLK value. Otherwise, any configuration based on this function will be incorrect.
   *
-  * @param  None
   * @retval SYSCLK frequency
   */
 uint32_t HAL_RCC_GetSysClockFreq(void)
@@ -921,32 +941,38 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
       /* HSE used as PLL clock source : PLLCLK = HSE/PREDIV * PLLMUL */
       pllclk = (HSE_VALUE/prediv) * pllmul;
     }
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
     else if ((tmpreg & RCC_CFGR_PLLSRC) == RCC_PLLSOURCE_HSI48)
     {
       /* HSI48 used as PLL clock source : PLLCLK = HSI48/PREDIV * PLLMUL */
       pllclk = (HSI48_VALUE/prediv) * pllmul;
     }
-#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
     else
     {
 #if defined(STM32F042x6) || defined(STM32F048xx) || \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
       /* HSI used as PLL clock source : PLLCLK = HSI/PREDIV * PLLMUL */
       pllclk = (HSI_VALUE/prediv) * pllmul;
 #else
       /* HSI used as PLL clock source : PLLCLK = HSI/2 * PLLMUL */
       pllclk = (HSI_VALUE >> 1) * pllmul;
-#endif /* STM32F042x6 || STM32F048xx || STM32F071xB || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F071xB || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
     }
     sysclockfreq = pllclk;
     break;
 
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
   case RCC_SYSCLKSOURCE_STATUS_HSI48:    /* HSI48 used as system clock source */
     sysclockfreq = HSI48_VALUE;
     break;
-#endif /* STM32F042x6 || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
 
   case RCC_SYSCLKSOURCE_STATUS_HSI:    /* HSI used as system clock source */
   default:
@@ -1038,7 +1064,8 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     __HAL_RCC_USART1_CONFIG(PeriphClkInit->Usart1ClockSelection);
   }
   
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
   /*----------------------------- USART2 Configuration --------------------------*/ 
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_USART2) == RCC_PERIPHCLK_USART2)
   {
@@ -1048,7 +1075,20 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     /* Configure the USART2 clock source */
     __HAL_RCC_USART2_CONFIG(PeriphClkInit->Usart2ClockSelection);
   }
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
+
+#if defined(STM32F091xC) || defined(STM32F098xx)
+  /*----------------------------- USART3 Configuration --------------------------*/ 
+  if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_USART3) == RCC_PERIPHCLK_USART3)
+  {
+    /* Check the parameters */
+    assert_param(IS_RCC_USART3CLKSOURCE(PeriphClkInit->Usart3ClockSelection));
+    
+    /* Configure the USART3 clock source */
+    __HAL_RCC_USART3_CONFIG(PeriphClkInit->Usart3ClockSelection);
+  }
+#endif /* STM32F091xC || STM32F098xx */  
 
   /*------------------------------ I2C1 Configuration ------------------------*/ 
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_I2C1) == RCC_PERIPHCLK_I2C1)
@@ -1074,7 +1114,8 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
 
 #if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
   /*------------------------------ CEC clock Configuration -------------------*/ 
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_CEC) == RCC_PERIPHCLK_CEC)
   {
@@ -1086,7 +1127,8 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
   }
 #endif /* STM32F042x6 || STM32F048xx ||                */
        /* STM32F051x8 || STM32F058xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx    */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
   
   return HAL_OK;
 }
@@ -1111,11 +1153,19 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   /* Get the I2C1 clock source -----------------------------------------------*/
   PeriphClkInit->I2c1ClockSelection = __HAL_RCC_GET_I2C1_SOURCE();
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_USART2;
   /* Get the USART2 clock source ---------------------------------------------*/
   PeriphClkInit->Usart2ClockSelection = __HAL_RCC_GET_USART2_SOURCE();
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
+
+#if defined(STM32F091xC) || defined(STM32F098xx)
+  PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_USART3;
+  /* Get the USART3 clock source ---------------------------------------------*/
+  PeriphClkInit->Usart3ClockSelection = __HAL_RCC_GET_USART3_SOURCE();
+#endif /* STM32F091xC || STM32F098xx */
 
 #if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_USB;
@@ -1125,18 +1175,21 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 
 #if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_CEC;
   /* Get the CEC clock source ------------------------------------------------*/
   PeriphClkInit->CecClockSelection = __HAL_RCC_GET_CEC_SOURCE();
 #endif /* STM32F042x6 || STM32F048xx ||                */
        /* STM32F051x8 || STM32F058xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx    */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
 
 }
 
 #if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
 /**
   * @brief  Start automatic synchronization using polling mode
   * @param  pInit Pointer on RCC_CRSInitTypeDef structure
@@ -1202,7 +1255,6 @@ void HAL_RCCEx_CRSConfig(RCC_CRSInitTypeDef *pInit)
 
 /**
   * @brief  Generate the software synchronization event
-  * @param  None
   * @retval None
   */
 void HAL_RCCEx_CRSSoftwareSynchronizationGenerate(void)
@@ -1330,8 +1382,9 @@ RCC_CRSStatusTypeDef HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
   return crsstatus;
 }
           
-#endif /* STM32F042x6 ||                            */
-       /* STM32F071xB || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx ||                */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
 
 /**
   * @}

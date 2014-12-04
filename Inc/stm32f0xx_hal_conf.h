@@ -141,7 +141,7 @@
                                              The real value may vary depending on the variations
                                              in voltage and temperature.  */
 /**
-  * @brief External Low Speed oscillator (LSE) value.
+  * @brief External Low Speed oscillator (LSI) value.
   */
 #if !defined  (LSE_VALUE)
  #define LSE_VALUE  ((uint32_t)32768)    /*!< Value of the External Low Speed oscillator in Hz */
@@ -155,14 +155,13 @@
   * @brief This is the HAL system configuration section
   */     
 #define  VDD_VALUE                    ((uint32_t)3300) /*!< Value of VDD in mv */           
-#define  TICK_INT_PRIORITY            ((uint32_t)(1<<__NVIC_PRIO_BITS) - 1)   /*!< tick interrupt priority (lowest by default)             */
+#define  TICK_INT_PRIORITY            ((uint32_t)0)    /*!< tick interrupt priority (lowest by default)  */            
                                                                               /*  Warning: Must be set to higher priority for HAL_Delay()  */
                                                                               /*  and HAL_GetTick() usage under interrupt context          */
-#define  USE_RTOS                     0
-#define  PREFETCH_ENABLE              1
+#define  USE_RTOS                     0     
+#define  PREFETCH_ENABLE              1              
 #define  INSTRUCTION_CACHE_ENABLE     0
 #define  DATA_CACHE_ENABLE            0
-
 /* ########################## Assert Selection ############################## */
 /**
   * @brief Uncomment the line below to expanse the "assert_param" macro in the 

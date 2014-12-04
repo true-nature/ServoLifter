@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
@@ -57,12 +57,15 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-
+/** @defgroup HAL_Exported_Constants HAL Exported Constants
+  * @{  
+  */
+   
 #if defined(SYSCFG_CFGR1_DMA_RMP)
-/** @defgroup HAL_DMA_Remapping
+/** @defgroup HAL_DMA_remapping HAL DMA remapping
   *        Elements values convention: 0xYYYYYYYY
   *           - YYYYYYYY  : Position in the SYSCFG register CFGR1
-  * @{
+  * @{  
   */
 #define HAL_REMAPDMA_ADC_DMA_CH2         ((uint32_t)SYSCFG_CFGR1_ADC_DMA_RMP) /*!< ADC DMA remap 
                                                                          0: No remap (ADC DMA requests mapped on DMA channel 1
@@ -138,7 +141,7 @@
 #endif /* SYSCFG_CFGR1_DMA_RMP */
 
 #if defined(SYSCFG_CFGR1_PA11_PA12_RMP)
-/** @defgroup HAL_Pin_Remapping
+/** @defgroup HAL_Pin_remapping HAL Pin remapping
   * @{
   */
 #define HAL_REMAP_PA11_PA12                 (SYSCFG_CFGR1_PA11_PA12_RMP)  /*!< PA11 and PA12 remapping bit for small packages (28 and 20 pins).
@@ -151,7 +154,24 @@
   */
 #endif /* SYSCFG_CFGR1_PA11_PA12_RMP */
 
-/** @defgroup HAL_FastModePlus_I2C
+#if defined(STM32F091xC)
+/** @defgroup HAL_IRDA_ENV_SEL HAL IRDA Enveloppe Selection
+  * @{
+  */
+#define HAL_SYSCFG_IRDA_ENV_SEL_TIM16     (SYSCFG_CFGR1_IRDA_ENV_SEL_0 & SYSCFG_CFGR1_IRDA_ENV_SEL_1)    /* 00: Timer16 is selected as IRDA Modulation enveloppe source */
+#define HAL_SYSCFG_IRDA_ENV_SEL_USART1    (SYSCFG_CFGR1_IRDA_ENV_SEL_0)  /* 01: USART1 is selected as IRDA Modulation enveloppe source */
+#define HAL_SYSCFG_IRDA_ENV_SEL_USART4    (SYSCFG_CFGR1_IRDA_ENV_SEL_1)  /* 10: USART4 is selected as IRDA Modulation enveloppe source */
+
+#define IS_HAL_SYSCFG_IRDA_ENV_SEL(SEL)   (((SEL) == HAL_SYSCFG_IRDA_ENV_SEL_TIM16)   || \
+                                           ((SEL) == HAL_SYSCFG_IRDA_ENV_SEL_USART1)   || \
+                                           ((SEL) == HAL_SYSCFG_IRDA_ENV_SEL_USART4))
+/**
+  * @}
+  */
+#endif /* STM32F091xC */
+
+
+/** @defgroup HAL_FastModePlus_I2C HAL FastModePlus I2C
   * @{
   */
 #if defined(SYSCFG_CFGR1_I2C_FMP_PB6)
@@ -175,8 +195,7 @@
 #if defined(SYSCFG_CFGR1_I2C_FMP_PB9)
 #define HAL_SYSCFG_FASTMODEPLUS_I2C_PB9     (SYSCFG_CFGR1_I2C_FMP_PB9)  /*!< Fast Mode Plus (FM+) driving capability activation on the pad
                                                                          0: PB9 pin operates in standard mode
-                                                                         1: I2C FM+ mode enabled on PB9 pin, and the Speed control is bypassed */
-                                                                         
+                                                                         1: I2C FM+ mode enabled on PB9 pin, and the Speed control is bypassed */                                                                        
 #endif /* SYSCFG_CFGR1_I2C_FMP_PB9 */
 
 #if defined(SYSCFG_CFGR1_I2C_FMP_I2C1)
@@ -202,15 +221,176 @@
                                                                          0: PA10 pin operates in standard mode
                                                                          1: FM+ mode is enabled on PA10 pin, and the Speed control is bypassed */
 #endif /* SYSCFG_CFGR1_I2C_FMP_PA10 */
+
+#if defined(STM32F091xC)|| defined(STM32F098xx)
+#define IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG(CONFIG) (((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C1)      || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C2)      || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C2_PA9)  || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C2_PA10) || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB6)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB7)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB8)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB9))
+#elif defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#define IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG(CONFIG) (((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C1)      || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C2)      || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB6)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB7)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB8)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB9))
+#elif defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx)
+#define IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG(CONFIG) (((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C1)      || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C2_PA9)  || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C2_PA10) || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB6)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB7)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB8)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB9))
+#elif defined(STM32F042x6) || defined(STM32F048xx)
+#define IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG(CONFIG) (((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C1)    || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB6) || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB7) || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB8) || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB9))
+#else
+#define IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG(CONFIG) (((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB6)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB7)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB8)   || \
+                                                   ((CONFIG) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB9))
+#endif
+
 /**
   * @}
   */
 
+#if defined(STM32F091xC) || defined (STM32F098xx)
+/** @defgroup HAL_ISR_Wrapper HAL ISR Wrapper
+  * @{
+  */
+#define HAL_SYSCFG_ITLINE0                           ((uint32_t) 0x00000000)
+#define HAL_SYSCFG_ITLINE1                           ((uint32_t) 0x00000001)
+#define HAL_SYSCFG_ITLINE2                           ((uint32_t) 0x00000002)
+#define HAL_SYSCFG_ITLINE3                           ((uint32_t) 0x00000003)
+#define HAL_SYSCFG_ITLINE4                           ((uint32_t) 0x00000004)
+#define HAL_SYSCFG_ITLINE5                           ((uint32_t) 0x00000005)
+#define HAL_SYSCFG_ITLINE6                           ((uint32_t) 0x00000006)
+#define HAL_SYSCFG_ITLINE7                           ((uint32_t) 0x00000007)
+#define HAL_SYSCFG_ITLINE8                           ((uint32_t) 0x00000008)
+#define HAL_SYSCFG_ITLINE9                           ((uint32_t) 0x00000009)
+#define HAL_SYSCFG_ITLINE10                          ((uint32_t) 0x0000000A)
+#define HAL_SYSCFG_ITLINE11                          ((uint32_t) 0x0000000B)
+#define HAL_SYSCFG_ITLINE12                          ((uint32_t) 0x0000000C)
+#define HAL_SYSCFG_ITLINE13                          ((uint32_t) 0x0000000D)
+#define HAL_SYSCFG_ITLINE14                          ((uint32_t) 0x0000000E)
+#define HAL_SYSCFG_ITLINE15                          ((uint32_t) 0x0000000F)
+#define HAL_SYSCFG_ITLINE16                          ((uint32_t) 0x00000010)
+#define HAL_SYSCFG_ITLINE17                          ((uint32_t) 0x00000011)
+#define HAL_SYSCFG_ITLINE18                          ((uint32_t) 0x00000012)
+#define HAL_SYSCFG_ITLINE19                          ((uint32_t) 0x00000013)
+#define HAL_SYSCFG_ITLINE20                          ((uint32_t) 0x00000014)
+#define HAL_SYSCFG_ITLINE21                          ((uint32_t) 0x00000015)
+#define HAL_SYSCFG_ITLINE22                          ((uint32_t) 0x00000016)
+#define HAL_SYSCFG_ITLINE23                          ((uint32_t) 0x00000017)
+#define HAL_SYSCFG_ITLINE24                          ((uint32_t) 0x00000018)
+#define HAL_SYSCFG_ITLINE25                          ((uint32_t) 0x00000019)
+#define HAL_SYSCFG_ITLINE26                          ((uint32_t) 0x0000001A)
+#define HAL_SYSCFG_ITLINE27                          ((uint32_t) 0x0000001B)
+#define HAL_SYSCFG_ITLINE28                          ((uint32_t) 0x0000001C)
+#define HAL_SYSCFG_ITLINE29                          ((uint32_t) 0x0000001D)
+#define HAL_SYSCFG_ITLINE30                          ((uint32_t) 0x0000001E)
+#define HAL_SYSCFG_ITLINE31                          ((uint32_t) 0x0000001F)
+
+#define HAL_ITLINE_EWDG           ((uint32_t) ((HAL_SYSCFG_ITLINE0 << 0x18) | SYSCFG_ITLINE0_SR_EWDG)) /* EWDG has expired .... */
+#if defined(STM32F091xC)
+#define HAL_ITLINE_PVDOUT         ((uint32_t) ((HAL_SYSCFG_ITLINE1 << 0x18) | SYSCFG_ITLINE1_SR_PVDOUT)) /* Power voltage detection Interrupt .... */
+#endif
+#define HAL_ITLINE_VDDIO2         ((uint32_t) ((HAL_SYSCFG_ITLINE1 << 0x18) | SYSCFG_ITLINE1_SR_VDDIO2)) /* VDDIO2 Interrupt .... */
+#define HAL_ITLINE_RTC_WAKEUP     ((uint32_t) ((HAL_SYSCFG_ITLINE2 << 0x18) | SYSCFG_ITLINE2_SR_RTC_WAKEUP)) /* RTC WAKEUP -> exti[20] Interrupt */
+#define HAL_ITLINE_RTC_TSTAMP     ((uint32_t) ((HAL_SYSCFG_ITLINE2 << 0x18) | SYSCFG_ITLINE2_SR_RTC_TSTAMP)) /* RTC Time Stamp -> exti[19] interrupt */
+#define HAL_ITLINE_RTC_ALRA       ((uint32_t) ((HAL_SYSCFG_ITLINE2 << 0x18) | SYSCFG_ITLINE2_SR_RTC_ALRA)) /* RTC Alarm -> exti[17] interrupt .... */
+#define HAL_ITLINE_FLASH_ITF      ((uint32_t) ((HAL_SYSCFG_ITLINE3 << 0x18) | SYSCFG_ITLINE3_SR_FLASH_ITF)) /* Flash ITF Interrupt */
+#define HAL_ITLINE_CRS            ((uint32_t) ((HAL_SYSCFG_ITLINE4 << 0x18) | SYSCFG_ITLINE4_SR_CRS)) /* CRS Interrupt */
+#define HAL_ITLINE_CLK_CTRL       ((uint32_t) ((HAL_SYSCFG_ITLINE4 << 0x18) | SYSCFG_ITLINE4_SR_CLK_CTRL)) /* CLK Control Interrupt */
+#define HAL_ITLINE_EXTI0          ((uint32_t) ((HAL_SYSCFG_ITLINE5 << 0x18) | SYSCFG_ITLINE5_SR_EXTI0)) /* External Interrupt 0 */
+#define HAL_ITLINE_EXTI1          ((uint32_t) ((HAL_SYSCFG_ITLINE5 << 0x18) | SYSCFG_ITLINE5_SR_EXTI1)) /* External Interrupt 1 */
+#define HAL_ITLINE_EXTI2          ((uint32_t) ((HAL_SYSCFG_ITLINE6 << 0x18) | SYSCFG_ITLINE6_SR_EXTI2)) /* External Interrupt 2 */
+#define HAL_ITLINE_EXTI3          ((uint32_t) ((HAL_SYSCFG_ITLINE6 << 0x18) | SYSCFG_ITLINE6_SR_EXTI3)) /* External Interrupt 3 */
+#define HAL_ITLINE_EXTI4          ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI4)) /* EXTI4 Interrupt */
+#define HAL_ITLINE_EXTI5          ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI5)) /* EXTI5 Interrupt */
+#define HAL_ITLINE_EXTI6          ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI6)) /* EXTI6 Interrupt */
+#define HAL_ITLINE_EXTI7          ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI7)) /* EXTI7 Interrupt */
+#define HAL_ITLINE_EXTI8          ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI8)) /* EXTI8 Interrupt */
+#define HAL_ITLINE_EXTI9          ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI9)) /* EXTI9 Interrupt */
+#define HAL_ITLINE_EXTI10         ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI10)) /* EXTI10 Interrupt */
+#define HAL_ITLINE_EXTI11         ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI11)) /* EXTI11 Interrupt */
+#define HAL_ITLINE_EXTI12         ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI12)) /* EXTI12 Interrupt */
+#define HAL_ITLINE_EXTI13         ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI13)) /* EXTI13 Interrupt */
+#define HAL_ITLINE_EXTI14         ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI14)) /* EXTI14 Interrupt */
+#define HAL_ITLINE_EXTI15         ((uint32_t) ((HAL_SYSCFG_ITLINE7 << 0x18) | SYSCFG_ITLINE7_SR_EXTI15)) /* EXTI15 Interrupt */
+#define HAL_ITLINE_TSC_EOA        ((uint32_t) ((HAL_SYSCFG_ITLINE8 << 0x18) | SYSCFG_ITLINE8_SR_TSC_EOA)) /* Touch control EOA Interrupt */
+#define HAL_ITLINE_TSC_MCE        ((uint32_t) ((HAL_SYSCFG_ITLINE8 << 0x18) | SYSCFG_ITLINE8_SR_TSC_MCE)) /* Touch control MCE Interrupt */
+#define HAL_ITLINE_DMA1_CH1       ((uint32_t) ((HAL_SYSCFG_ITLINE9 << 0x18) | SYSCFG_ITLINE9_SR_DMA1_CH1)) /* DMA1 Channel 1 Interrupt */
+#define HAL_ITLINE_DMA1_CH2       ((uint32_t) ((HAL_SYSCFG_ITLINE10 << 0x18) | SYSCFG_ITLINE10_SR_DMA1_CH2)) /* DMA1 Channel 2 Interrupt */
+#define HAL_ITLINE_DMA1_CH3       ((uint32_t) ((HAL_SYSCFG_ITLINE10 << 0x18) | SYSCFG_ITLINE10_SR_DMA1_CH3)) /* DMA1 Channel 3 Interrupt */
+#define HAL_ITLINE_DMA2_CH1       ((uint32_t) ((HAL_SYSCFG_ITLINE10 << 0x18) | SYSCFG_ITLINE10_SR_DMA2_CH1)) /* DMA2 Channel 1 Interrupt */
+#define HAL_ITLINE_DMA2_CH2       ((uint32_t) ((HAL_SYSCFG_ITLINE10 << 0x18) | SYSCFG_ITLINE10_SR_DMA2_CH2)) /* DMA2 Channel 2 Interrupt */
+#define HAL_ITLINE_DMA1_CH4       ((uint32_t) ((HAL_SYSCFG_ITLINE11 << 0x18) | SYSCFG_ITLINE11_SR_DMA1_CH4)) /* DMA1 Channel 4 Interrupt */
+#define HAL_ITLINE_DMA1_CH5       ((uint32_t) ((HAL_SYSCFG_ITLINE11 << 0x18) | SYSCFG_ITLINE11_SR_DMA1_CH5)) /* DMA1 Channel 5 Interrupt */
+#define HAL_ITLINE_DMA1_CH6       ((uint32_t) ((HAL_SYSCFG_ITLINE11 << 0x18) | SYSCFG_ITLINE11_SR_DMA1_CH6)) /* DMA1 Channel 6 Interrupt */
+#define HAL_ITLINE_DMA1_CH7       ((uint32_t) ((HAL_SYSCFG_ITLINE11 << 0x18) | SYSCFG_ITLINE11_SR_DMA1_CH7)) /* DMA1 Channel 7 Interrupt */
+#define HAL_ITLINE_DMA2_CH3       ((uint32_t) ((HAL_SYSCFG_ITLINE11 << 0x18) | SYSCFG_ITLINE11_SR_DMA2_CH3)) /* DMA2 Channel 3 Interrupt */
+#define HAL_ITLINE_DMA2_CH4       ((uint32_t) ((HAL_SYSCFG_ITLINE11 << 0x18) | SYSCFG_ITLINE11_SR_DMA2_CH4)) /* DMA2 Channel 4 Interrupt */
+#define HAL_ITLINE_DMA2_CH5       ((uint32_t) ((HAL_SYSCFG_ITLINE11 << 0x18) | SYSCFG_ITLINE11_SR_DMA2_CH5)) /* DMA2 Channel 5 Interrupt */
+#define HAL_ITLINE_ADC            ((uint32_t) ((HAL_SYSCFG_ITLINE12 << 0x18) | SYSCFG_ITLINE12_SR_ADC)) /* ADC Interrupt */
+#define HAL_ITLINE_COMP1          ((uint32_t) ((HAL_SYSCFG_ITLINE12 << 0x18) | SYSCFG_ITLINE12_SR_COMP1)) /* COMP1 Interrupt -> exti[21] */
+#define HAL_ITLINE_COMP2          ((uint32_t) ((HAL_SYSCFG_ITLINE12 << 0x18) | SYSCFG_ITLINE12_SR_COMP2)) /* COMP2 Interrupt -> exti[21] */
+#define HAL_ITLINE_TIM1_BRK       ((uint32_t) ((HAL_SYSCFG_ITLINE13 << 0x18) | SYSCFG_ITLINE13_SR_TIM1_BRK)) /* TIM1 BRK Interrupt */
+#define HAL_ITLINE_TIM1_UPD       ((uint32_t) ((HAL_SYSCFG_ITLINE13 << 0x18) | SYSCFG_ITLINE13_SR_TIM1_UPD)) /* TIM1 UPD Interrupt */
+#define HAL_ITLINE_TIM1_TRG       ((uint32_t) ((HAL_SYSCFG_ITLINE13 << 0x18) | SYSCFG_ITLINE13_SR_TIM1_TRG)) /* TIM1 TRG Interrupt */
+#define HAL_ITLINE_TIM1_CCU       ((uint32_t) ((HAL_SYSCFG_ITLINE13 << 0x18) | SYSCFG_ITLINE13_SR_TIM1_CCU)) /* TIM1 CCU Interrupt */
+#define HAL_ITLINE_TIM1_CC        ((uint32_t) ((HAL_SYSCFG_ITLINE14 << 0x18) | SYSCFG_ITLINE14_SR_TIM1_CC)) /* TIM1 CC Interrupt */
+#define HAL_ITLINE_TIM2           ((uint32_t) ((HAL_SYSCFG_ITLINE15 << 0x18) | SYSCFG_ITLINE15_SR_TIM2_GLB)) /* TIM2 Interrupt */
+#define HAL_ITLINE_TIM3           ((uint32_t) ((HAL_SYSCFG_ITLINE16 << 0x18) | SYSCFG_ITLINE16_SR_TIM3_GLB)) /* TIM3 Interrupt */
+#define HAL_ITLINE_DAC            ((uint32_t) ((HAL_SYSCFG_ITLINE17 << 0x18) | SYSCFG_ITLINE17_SR_DAC)) /* DAC Interrupt */
+#define HAL_ITLINE_TIM6           ((uint32_t) ((HAL_SYSCFG_ITLINE17 << 0x18) | SYSCFG_ITLINE17_SR_TIM6_GLB)) /* TIM6 Interrupt */
+#define HAL_ITLINE_TIM7           ((uint32_t) ((HAL_SYSCFG_ITLINE18 << 0x18) | SYSCFG_ITLINE18_SR_TIM7_GLB)) /* TIM7 Interrupt */
+#define HAL_ITLINE_TIM14          ((uint32_t) ((HAL_SYSCFG_ITLINE19 << 0x18) | SYSCFG_ITLINE19_SR_TIM14_GLB)) /* TIM14 Interrupt */
+#define HAL_ITLINE_TIM15          ((uint32_t) ((HAL_SYSCFG_ITLINE20 << 0x18) | SYSCFG_ITLINE20_SR_TIM15_GLB)) /* TIM15 Interrupt */
+#define HAL_ITLINE_TIM16          ((uint32_t) ((HAL_SYSCFG_ITLINE21 << 0x18) | SYSCFG_ITLINE21_SR_TIM16_GLB)) /* TIM16 Interrupt */
+#define HAL_ITLINE_TIM17          ((uint32_t) ((HAL_SYSCFG_ITLINE22 << 0x18) | SYSCFG_ITLINE22_SR_TIM17_GLB)) /* TIM17 Interrupt */
+#define HAL_ITLINE_I2C1           ((uint32_t) ((HAL_SYSCFG_ITLINE23 << 0x18) | SYSCFG_ITLINE23_SR_I2C1_GLB)) /* I2C1 Interrupt -> exti[23] */
+#define HAL_ITLINE_I2C2           ((uint32_t) ((HAL_SYSCFG_ITLINE24 << 0x18) | SYSCFG_ITLINE24_SR_I2C2_GLB)) /* I2C2 Interrupt */
+#define HAL_ITLINE_SPI1           ((uint32_t) ((HAL_SYSCFG_ITLINE25 << 0x18) | SYSCFG_ITLINE25_SR_SPI1)) /* I2C1 Interrupt -> exti[23] */
+#define HAL_ITLINE_SPI2           ((uint32_t) ((HAL_SYSCFG_ITLINE26 << 0x18) | SYSCFG_ITLINE26_SR_SPI2)) /* SPI1 Interrupt */
+#define HAL_ITLINE_USART1         ((uint32_t) ((HAL_SYSCFG_ITLINE27 << 0x18) | SYSCFG_ITLINE27_SR_USART1_GLB)) /*!< USART1 GLB Interrupt -> exti[25] */
+#define HAL_ITLINE_USART2         ((uint32_t) ((HAL_SYSCFG_ITLINE28 << 0x18) | SYSCFG_ITLINE28_SR_USART2_GLB)) /*!< USART2 GLB Interrupt -> exti[26] */
+#define HAL_ITLINE_USART3         ((uint32_t) ((HAL_SYSCFG_ITLINE29 << 0x18) | SYSCFG_ITLINE29_SR_USART3_GLB)) /* USART3 Interrupt .... */
+#define HAL_ITLINE_USART4         ((uint32_t) ((HAL_SYSCFG_ITLINE29 << 0x18) | SYSCFG_ITLINE29_SR_USART4_GLB)) /* USART4 Interrupt .... */
+#define HAL_ITLINE_USART5         ((uint32_t) ((HAL_SYSCFG_ITLINE29 << 0x18) | SYSCFG_ITLINE29_SR_USART5_GLB)) /* USART5 Interrupt .... */
+#define HAL_ITLINE_USART6         ((uint32_t) ((HAL_SYSCFG_ITLINE29 << 0x18) | SYSCFG_ITLINE29_SR_USART6_GLB)) /* USART6 Interrupt .... */
+#define HAL_ITLINE_USART7         ((uint32_t) ((HAL_SYSCFG_ITLINE29 << 0x18) | SYSCFG_ITLINE29_SR_USART7_GLB)) /* USART7 Interrupt .... */
+#define HAL_ITLINE_USART8         ((uint32_t) ((HAL_SYSCFG_ITLINE29 << 0x18) | SYSCFG_ITLINE29_SR_USART8_GLB)) /* USART8 Interrupt .... */
+#define HAL_ITLINE_CAN            ((uint32_t) ((HAL_SYSCFG_ITLINE30 << 0x18) | SYSCFG_ITLINE30_SR_CAN)) /* CAN Interrupt */
+#define HAL_ITLINE_CEC            ((uint32_t) ((HAL_SYSCFG_ITLINE30 << 0x18) | SYSCFG_ITLINE30_SR_CEC)) /* CEC Interrupt -> exti[27] */
+/**
+  * @}
+  */
+#endif /* STM32F091xC || STM32F098xx */
+
+/**
+  * @}
+  */  
 
 /* Exported macros -----------------------------------------------------------*/
-
-/** @brief  Freeze/Unfreeze Peripherals in Debug mode 
+/** @defgroup HAL_Exported_Macros HAL Exported Macros
+  * @{  
   */
+
+/** @defgroup HAL_Freeze_Unfreeze_Peripherals HAL Freeze Unfreeze Peripherals
+  * @brief  Freeze/Unfreeze Peripherals in Debug mode 
+  * @{  
+  */
+  
 #if defined(DBGMCU_APB1_FZ_DBG_CAN_STOP)
 #define __HAL_FREEZE_CAN_DBGMCU()            (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_CAN_STOP))
 #define __HAL_UNFREEZE_CAN_DBGMCU()          (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_CAN_STOP))
@@ -281,6 +461,13 @@
 #define __HAL_UNFREEZE_TIM17_DBGMCU()        (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM17_STOP))
 #endif /* DBGMCU_APB2_FZ_DBG_TIM17_STOP */
 
+/**
+  * @}
+  */  
+  
+/** @defgroup Memory_Mapping_Selection Memory Mapping Selection
+  * @{   
+  */
 #if defined(SYSCFG_CFGR1_MEM_MODE)
 /** @brief  Main Flash memory mapped at 0x00000000
   */
@@ -300,11 +487,17 @@
   */
 #define __HAL_REMAPMEMORY_SRAM()         do {SYSCFG->CFGR1 &= ~(SYSCFG_CFGR1_MEM_MODE); \
                                              SYSCFG->CFGR1 |= (SYSCFG_CFGR1_MEM_MODE_0 | SYSCFG_CFGR1_MEM_MODE_1); \
-                                            }while(0)
+                                            }while(0) 
 #endif /* SYSCFG_CFGR1_MEM_MODE_0 && SYSCFG_CFGR1_MEM_MODE_1 */
+/**
+  * @}
+  */ 
 
-/** @brief  DMA remapping enable/disable macros
-  * @param __DMA_REMAP__: This parameter can be a value of @ref HAL_DMA_Remapping
+#if defined(SYSCFG_CFGR1_DMA_RMP)
+/** @defgroup HAL_DMA_remap HAL DMA remap
+  * @brief  DMA remapping enable/disable macros
+  * @param __DMA_REMAP__: This parameter can be a value of @ref HAL_DMA_remapping
+  * @{   
   */
 #define __HAL_REMAPDMA_CHANNEL_ENABLE(__DMA_REMAP__)   do {assert_param(IS_HAL_REMAPDMA((__DMA_REMAP__)));                  \
                                                            SYSCFG->CFGR1 |= (__DMA_REMAP__);                                \
@@ -312,19 +505,32 @@
 #define __HAL_REMAPDMA_CHANNEL_DISABLE(__DMA_REMAP__)  do {assert_param(IS_HAL_REMAPDMA((__DMA_REMAP__)));                  \
                                                            SYSCFG->CFGR1 &= ~(__DMA_REMAP__);                               \
                                                          }while(0)
+/**
+  * @}
+  */  
+#endif /* SYSCFG_CFGR1_DMA_RMP */
 
-/** @brief  Pin remapping enable/disable macros
-  * @param __PIN_REMAP__: This parameter can be a value of @ref HAL_Pin_Remapping
+#if defined(SYSCFG_CFGR1_PA11_PA12_RMP)
+/** @defgroup HAL_Pin_remap HAL Pin remap 
+  * @brief  Pin remapping enable/disable macros
+  * @param __PIN_REMAP__: This parameter can be a value of @ref HAL_Pin_remapping
+  * @{   
   */
 #define __HAL_REMAP_PIN_ENABLE(__PIN_REMAP__)          do {assert_param(IS_HAL_REMAP_PIN((__PIN_REMAP__)));                 \
                                                            SYSCFG->CFGR1 |= (__PIN_REMAP__);                                \
                                                          }while(0)
-#define __HAL_REMAP_PIN_DISABLE(__PIN_REMAP__)         do {assert_param(IS_HAL_REMAP_PIN((__DMA_REMAP__)));                 \
+#define __HAL_REMAP_PIN_DISABLE(__PIN_REMAP__)         do {assert_param(IS_HAL_REMAP_PIN((__PIN_REMAP__)));                 \
                                                            SYSCFG->CFGR1 &= ~(__PIN_REMAP__);                               \
                                                          }while(0)
+/**
+  * @}
+  */  
+#endif /* SYSCFG_CFGR1_PA11_PA12_RMP */
 
-/** @brief  Fast mode Plus driving capability enable/disable macros
+/** @defgroup HAL_Fast_mode_plus_driving_cap HAL Fast mode plus driving cap
+  * @brief  Fast mode Plus driving capability enable/disable macros
   * @param __FASTMODEPLUS__: This parameter can be a value of @ref HAL_FastModePlus_I2C
+  * @{    
   */
 #define __HAL_SYSCFG_FASTMODEPLUS_ENABLE(__FASTMODEPLUS__)  do {assert_param(IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG((__FASTMODEPLUS__))); \
                                                                 SYSCFG->CFGR1 |= (__FASTMODEPLUS__);                                 \
@@ -333,8 +539,14 @@
 #define __HAL_SYSCFG_FASTMODEPLUS_DISABLE(__FASTMODEPLUS__) do {assert_param(IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG((__FASTMODEPLUS__))); \
                                                                 SYSCFG->CFGR1 &= ~(__FASTMODEPLUS__);                                \
                                                                }while(0)
-
+/**
+  * @}
+  */  
+  
 #if defined(SYSCFG_CFGR2_LOCKUP_LOCK)
+/** @defgroup Cortex_Lockup_Enable Cortex Lockup Enable
+  * @{   
+  */
 /** @brief  SYSCFG Break Lockup lock
   *         Enables and locks the connection of Cortex-M0 LOCKUP (Hardfault) output to TIM1/15/16/17 Break input
   * @note   The selected configuration is locked and can be unlocked by system reset
@@ -342,9 +554,15 @@
 #define __HAL_SYSCFG_BREAK_LOCKUP_LOCK()   do {SYSCFG->CFGR2 &= ~(SYSCFG_CFGR2_LOCKUP_LOCK); \
                                                SYSCFG->CFGR2 |= SYSCFG_CFGR2_LOCKUP_LOCK;    \
                                               }while(0)
+/**
+  * @}
+  */  
 #endif /* SYSCFG_CFGR2_LOCKUP_LOCK */
 
 #if defined(SYSCFG_CFGR2_PVD_LOCK)
+/** @defgroup PVD_Lock_Enable PVD Lock
+  * @{  
+  */
 /** @brief  SYSCFG Break PVD lock
   *         Enables and locks the PVD connection with Timer1/8/15/16/17 Break Input, , as well as the PVDE and PLS[2:0] in the PWR_CR register
   * @note   The selected configuration is locked and can be unlocked by system reset
@@ -352,9 +570,15 @@
 #define __HAL_SYSCFG_BREAK_PVD_LOCK()      do {SYSCFG->CFGR2 &= ~(SYSCFG_CFGR2_PVD_LOCK); \
                                                SYSCFG->CFGR2 |= SYSCFG_CFGR2_PVD_LOCK;    \
                                               }while(0)
+/**
+  * @}
+  */
 #endif /* SYSCFG_CFGR2_PVD_LOCK */
 
 #if defined(SYSCFG_CFGR2_SRAM_PARITY_LOCK)
+/** @defgroup SRAM_Parity_Lock SRAM Parity Lock
+  * @{
+  */
 /** @brief  SYSCFG Break SRAM PARITY lock
   *         Enables and locks the SRAM_PARITY error signal with Break Input of TIMER1/8/15/16/17
   * @note   The selected configuration is locked and can be unlocked by system reset
@@ -362,27 +586,80 @@
 #define __HAL_SYSCFG_BREAK_SRAMPARITY_LOCK() do {SYSCFG->CFGR2 &= ~(SYSCFG_CFGR2_SRAM_PARITY_LOCK); \
                                                  SYSCFG->CFGR2 |= SYSCFG_CFGR2_SRAM_PARITY_LOCK;    \
                                                 }while(0)
+/**
+  * @}
+  */
 #endif /* SYSCFG_CFGR2_SRAM_PARITY_LOCK */
 
 #if defined(SYSCFG_CFGR2_SRAM_PEF)
-/**
+/** @defgroup HAL_SYSCFG_Parity_check_on_RAM HAL SYSCFG Parity check on RAM
   * @brief  Parity check on RAM disable macro
   * @note   Disabling the parity check on RAM locks the configuration bit.
   *         To re-enable the parity check on RAM perform a system reset.
+  * @{  
   */
 #define __HAL_SYSCFG_RAM_PARITYCHECK_DISABLE()   (SYSCFG->CFGR2 |= SYSCFG_CFGR2_SRAM_PEF)
+/**
+  * @}
+  */
 #endif /* SYSCFG_CFGR2_SRAM_PEF */
 
 
-/* Exported functions --------------------------------------------------------*/
+#if defined(STM32F091xC) || defined (STM32F098xx)
+/** @defgroup HAL_ISR_wrapper_check HAL ISR wrapper check
+  * @brief  ISR wrapper check
+  * @note   Allow to determine interrupt source per line.
+  * @{  
+  */
+#define __HAL_GET_PENDING_IT(__SOURCE__)       (SYSCFG->IT_LINE_SR[((__SOURCE__) >> 0x18)] & ((__SOURCE__) & 0x00FFFFFF))
+/**
+  * @}
+  */
+#endif /* (STM32F091xC) || defined (STM32F098xx)*/
 
-/* Initialization and de-initialization functions  ****************************/
+#if defined(STM32F091xC) || defined (STM32F098xx)
+/** @defgroup HAL_SYSCFG_IRDA_modulation_envelope_selection HAL SYSCFG IRDA modulation envelope selection
+  * @brief  selection of the modulation envelope signal macro, using bits [7:6] of SYS_CTRL(CFGR1) register
+  * @param __SOURCE__: This parameter can be a value of @ref HAL_IRDA_ENV_SEL
+  * @{  
+  */
+#define __HAL_SYSCFG_IRDA_ENV_SELECTION(__SOURCE__)  do {assert_param(IS_HAL_SYSCFG_IRDA_ENV_SEL((__SOURCE__))); \
+                                                         SYSCFG->CFGR1 &= ~(SYSCFG_CFGR1_IRDA_ENV_SEL); \
+                                                         SYSCFG->CFGR1 |= (__SOURCE__);    \
+                                                        }while(0)
+
+#define __HAL_SYSCFG_GET_IRDA_ENV_SELECTION()  ((SYSCFG->CFGR1) & 0x000000C0)
+/**
+  * @}
+  */
+#endif /* (STM32F091xC) || defined (STM32F098xx)*/
+
+/**
+  * @}
+  */   
+/* Exported functions --------------------------------------------------------*/
+/** @addtogroup HAL_Exported_Functions HAL Exported Functions
+  * @{
+  */
+
+/** @addtogroup HAL_Exported_Functions_Group1 Initialization and de-initialization Functions 
+ *  @brief    Initialization and de-initialization functions
+  * @{
+  */    
+/* Initialization and de-initialization functions  ******************************/
 HAL_StatusTypeDef HAL_Init(void);
 HAL_StatusTypeDef HAL_DeInit(void);
 void              HAL_MspInit(void);
 void              HAL_MspDeInit(void);
 HAL_StatusTypeDef HAL_InitTick (uint32_t TickPriority);
+/**
+  * @}
+  */  
 
+/** @addtogroup HAL_Exported_Functions_Group2 HAL Control functions 
+ *  @brief    HAL Control functions
+  * @{
+  */    
 /* Peripheral Control functions  **********************************************/
 void              HAL_IncTick(void);
 void              HAL_Delay(__IO uint32_t Delay);
@@ -392,15 +669,21 @@ void              HAL_ResumeTick(void);
 uint32_t          HAL_GetHalVersion(void);
 uint32_t          HAL_GetREVID(void);
 uint32_t          HAL_GetDEVID(void);
-
 void              HAL_EnableDBGStopMode(void);
 void              HAL_DisableDBGStopMode(void);
 void              HAL_EnableDBGStandbyMode(void);
 void              HAL_DisableDBGStandbyMode(void);
+/**
+  * @}
+  */ 
 
 /**
   * @}
   */ 
+
+/**
+  * @}
+  */   
 
 /**
   * @}

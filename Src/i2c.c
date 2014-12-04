@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : I2C.c
-  * Date               : 31/10/2014 11:25:38
+  * Date               : 04/12/2014 10:38:33
   * Description        : This file provides code for the configuration
   *                      of the I2C instances.
   ******************************************************************************
@@ -71,6 +71,9 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
   GPIO_InitTypeDef GPIO_InitStruct;
   if(hi2c->Instance==I2C1)
   {
+  /* USER CODE BEGIN I2C1_MspInit 0 */
+
+  /* USER CODE END I2C1_MspInit 0 */
     /* Peripheral clock enable */
     __I2C1_CLK_ENABLE();
   
@@ -80,11 +83,14 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     */
     GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF1_I2C1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /* USER CODE BEGIN I2C1_MspInit 1 */
+
+  /* USER CODE END I2C1_MspInit 1 */
   }
 }
 
@@ -93,6 +99,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 
   if(hi2c->Instance==I2C1)
   {
+  /* USER CODE BEGIN I2C1_MspDeInit 0 */
+
+  /* USER CODE END I2C1_MspDeInit 0 */
     /* Peripheral clock disable */
     __I2C1_CLK_DISABLE();
   
@@ -102,8 +111,15 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
     */
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6|GPIO_PIN_7);
 
+  /* USER CODE BEGIN I2C1_MspDeInit 1 */
+
+  /* USER CODE END I2C1_MspDeInit 1 */
   }
 } 
+
+/* USER CODE BEGIN 1 */
+
+/* USER CODE END 1 */
 
 /**
   * @}

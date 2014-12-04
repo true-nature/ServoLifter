@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   RCC HAL module driver.
-  *
   *          This file provides firmware functions to manage the following
   *          functionalities of the Reset and Clock Control (RCC) peripheral:
   *           + Initialization/de-initialization function
@@ -72,7 +71,7 @@
   * @{
   */
 
-/** @defgroup RCC
+/** @defgroup RCC RCC HAL module driver
   * @brief RCC HAL module driver
   * @{
   */
@@ -81,25 +80,43 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup RCC_Private_Define RCC Private Define
+  * @{
+  */
 #define RCC_CFGR_HPRE_BITNUMBER    4
 #define RCC_CFGR_PPRE_BITNUMBER    8
+/**
+  * @}
+  */
     
 /* Private macro -------------------------------------------------------------*/
+/** @defgroup RCC_Private_Macros RCC Private Macros
+  * @{
+  */
 #define __MCO_CLK_ENABLE()   __GPIOA_CLK_ENABLE()
 #define MCO_GPIO_PORT        GPIOA
 #define MCO_PIN              GPIO_PIN_8
+/**
+  * @}
+  */
 
 /* Private variables ---------------------------------------------------------*/
+/** @defgroup RCC_Private_Variables RCC Private Variables
+  * @{
+  */
 const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 8, 9};
+/**
+  * @}
+  */
 
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup RCC_Private_Functions
+/** @defgroup RCC_Exported_Functions RCC Exported Functions
   * @{
   */
 
-/** @defgroup HAL_RCC_Group1 Initialization/de-initialization function
+/** @defgroup RCC_Exported_Functions_Group1 Initialization/de-initialization function
  *  @brief    Initialization and Configuration functions
  *
 @verbatim
@@ -128,9 +145,9 @@ const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 
          (#) LSE (low-speed external), 32 KHz oscillator used as RTC clock source.
 
          (#) PLL (clocked by HSI, HSI48 or HSE), featuring different output clocks:
-           (+@) The first output is used to generate the high speed system clock (up to 48 MHz)
-           (+@) The second output is used to generate the clock for the USB FS (48 MHz)
-           (+@) The third output may be used to generate the clock for the TIM, I2C and USART 
+           (++) The first output is used to generate the high speed system clock (up to 48 MHz)
+           (++) The second output is used to generate the clock for the USB FS (48 MHz)
+           (++) The third output may be used to generate the clock for the TIM, I2C and USART 
                 peripherals (up to 48 MHz)
 
          (#) CSS (Clock security system), once enable using the macro __HAL_RCC_CSS_ENABLE()
@@ -153,15 +170,15 @@ const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 
              "HAL_RCC_GetSysClockFreq()" function to retrieve the frequencies of these clocks.
 
          (#) All the peripheral clocks are derived from the System clock (SYSCLK) except:
-           (+@) The FLASH program/erase clock  which is always HSI 8MHz clock.
-           (+@) The USB 48 MHz clock which is derived from the PLL VCO clock.
-           (+@) The USART clock which can be derived as well from HSI 8MHz, LSI or LSE.
-           (+@) The I2C clock which can be derived as well from HSI 8MHz clock.
-           (+@) The ADC clock which is derived from PLL output.
-           (+@) The RTC clock which is derived from the LSE, LSI or 1 MHz HSE_RTC
+           (++) The FLASH program/erase clock  which is always HSI 8MHz clock.
+           (++) The USB 48 MHz clock which is derived from the PLL VCO clock.
+           (++) The USART clock which can be derived as well from HSI 8MHz, LSI or LSE.
+           (++) The I2C clock which can be derived as well from HSI 8MHz clock.
+           (++) The ADC clock which is derived from PLL output.
+           (++) The RTC clock which is derived from the LSE, LSI or 1 MHz HSE_RTC
                 (HSE divided by a programmable prescaler). The System clock (SYSCLK)
                 frequency must be higher or equal to the RTC clock frequency.
-           (+@) IWDG clock which is always the LSI clock.
+           (++) IWDG clock which is always the LSI clock.
 
          (#) For the STM32F0xx devices, the maximum frequency of the SYSCLK, HCLK and PCLK1 is 48 MHz,
              Depending on the SYSCLK frequency, the flash latency should be adapted accordingly:
@@ -191,7 +208,6 @@ const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 
   * @note   This function doesn't modify the configuration of the
   *            - Peripheral clocks
   *            - LSI, LSE and RTC clocks
-  * @param  None
   * @retval None
   */
 void HAL_RCC_DeInit(void)
@@ -277,7 +293,7 @@ __weak HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStr
   * @}
   */
 
-/** @defgroup HAL_RCC_Group2 Peripheral Control function
+/** @defgroup RCC_Exported_Functions_Group2 Peripheral Control function
  *  @brief   RCC clocks control functions
  *
 @verbatim
@@ -342,8 +358,7 @@ void HAL_RCC_MCOConfig(uint32_t RCC_MCOx, uint32_t RCC_MCOSource, uint32_t RCC_M
   *         is automatically disabled and an interrupt is generated to inform the
   *         software about the failure (Clock Security System Interrupt, CSSI),
   *         allowing the MCU to perform rescue operations. The CSSI is linked to
-  *         the Cortex-M4 NMI (Non-Maskable Interrupt) exception vector.
-  * @param  None
+  *         the Cortex-M0 NMI (Non-Maskable Interrupt) exception vector.
   * @retval None
   */
 void HAL_RCC_EnableCSS(void)
@@ -353,7 +368,6 @@ void HAL_RCC_EnableCSS(void)
 
 /**
   * @brief  Disables the Clock Security System.
-  * @param  None
   * @retval None
   */
 void HAL_RCC_DisableCSS(void)
@@ -390,7 +404,6 @@ void HAL_RCC_DisableCSS(void)
   * @note   Each time SYSCLK changes, this function must be called to update the
   *         right SYSCLK value. Otherwise, any configuration based on this function will be incorrect.
   *
-  * @param  None
   * @retval SYSCLK frequency
   */
 __weak uint32_t HAL_RCC_GetSysClockFreq(void)
@@ -399,8 +412,8 @@ __weak uint32_t HAL_RCC_GetSysClockFreq(void)
   /*        Function content is located into file stm32f0xx_hal_rcc_ex.c to */
   /*        handle the possible oscillators present in STM32F0xx devices    */
   
-  /* Return current SYSCLK frequency without computation */
-  return SystemCoreClock;
+  /* Return error status as not implemented here */
+  return HAL_ERROR;
 }
 
 /**
@@ -411,7 +424,6 @@ __weak uint32_t HAL_RCC_GetSysClockFreq(void)
   * @note   The SystemCoreClock CMSIS variable is used to store System Clock Frequency 
   *         and updated within this function
   *                       
-  * @param  None
   * @retval HCLK frequency
   */
 uint32_t HAL_RCC_GetHCLKFreq(void)
@@ -424,7 +436,6 @@ uint32_t HAL_RCC_GetHCLKFreq(void)
   * @brief  Returns the PCLK1 frequency
   * @note   Each time PCLK1 changes, this function must be called to update the
   *         right PCLK1 value. Otherwise, any configuration based on this function will be incorrect.
-  * @param  None
   * @retval PCLK1 frequency
   */
 uint32_t HAL_RCC_GetPCLK1Freq(void)
@@ -553,7 +564,6 @@ void HAL_RCC_GetClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, uint32_t *pF
 /**
   * @brief This function handles the RCC CSS interrupt request.
   * @note This API should be called under the NMI_Handler().
-  * @param None
   * @retval None
   */
 void HAL_RCC_NMI_IRQHandler(void)
@@ -571,7 +581,6 @@ void HAL_RCC_NMI_IRQHandler(void)
 
 /**
   * @brief  RCC Clock Security System interrupt callback
-  * @param  none 
   * @retval none
   */
 __weak void HAL_RCC_CCSCallback(void)

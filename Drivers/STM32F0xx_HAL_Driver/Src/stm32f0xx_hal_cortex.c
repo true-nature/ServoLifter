@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   CORTEX HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the CORTEX:
@@ -102,8 +102,8 @@
   * @{
   */
 
-/** @defgroup CORTEX
-  * @brief CORTEX HAL module driver
+/** @defgroup CORTEX CORTEX HAL module driver
+  * @brief CORTEX CORTEX HAL module driver
   * @{
   */
 
@@ -114,14 +114,14 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup CORTEX_Private_Functions
+/** @defgroup CORTEX_Exported_Functions CORTEX Exported Functions
   * @{
   */
 
 
-/** @defgroup CORTEX_Group1 Initialization and de-initialization functions 
+/** @defgroup CORTEX_Exported_Functions_Group1 Initialization and de-initialization functions 
  *  @brief    Initialization and Configuration functions
  *
 @verbatim
@@ -186,7 +186,6 @@ void HAL_NVIC_DisableIRQ(IRQn_Type IRQn)
 
 /**
   * @brief  Initiates a system reset request to reset the MCU.
-  * @param None
   * @retval None
   */
 void HAL_NVIC_SystemReset(void)
@@ -210,7 +209,7 @@ uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb)
   * @}
   */
 
-/** @defgroup CORTEX_Group2 Peripheral Control functions 
+/** @defgroup CORTEX_Exported_Functions_Group2 Peripheral Control functions 
  *  @brief   Cortex control functions
  *
 @verbatim
@@ -292,7 +291,7 @@ void HAL_NVIC_ClearPendingIRQ(IRQn_Type IRQn)
 void HAL_SYSTICK_CLKSourceConfig(uint32_t CLKSource)
 {
   /* Check the parameters */
-  assert_param(IS_SYSTICK_CLKSOURCE(CLKSource));
+  assert_param(IS_SYSTICK_CLK_SOURCE(CLKSource));
   if (CLKSource == SYSTICK_CLKSOURCE_HCLK)
   {
     SysTick->CTRL |= SYSTICK_CLKSOURCE_HCLK;
@@ -305,7 +304,6 @@ void HAL_SYSTICK_CLKSourceConfig(uint32_t CLKSource)
 
 /**
   * @brief  This function handles SYSTICK interrupt request.
-  * @param  None
   * @retval None
   */
 void HAL_SYSTICK_IRQHandler(void)
@@ -315,7 +313,6 @@ void HAL_SYSTICK_IRQHandler(void)
 
 /**
   * @brief  SYSTICK callback.
-  * @param  None
   * @retval None
   */
 __weak void HAL_SYSTICK_Callback(void)

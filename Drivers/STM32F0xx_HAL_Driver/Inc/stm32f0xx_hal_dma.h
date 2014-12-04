@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
@@ -55,6 +55,9 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @defgroup DMA_Exported_Types DMA Exported Types
+  * @{
+  */
 
 /** 
   * @brief  DMA Configuration Structure definition  
@@ -97,9 +100,9 @@ typedef enum
   
 } DMA_ControlTypeDef;
 
-/** 
-  * @brief  HAL DMA2D State structures definition  
-  */ 
+/**
+  * @brief  HAL DMA State structures definition  
+  */
 typedef enum
 {
   HAL_DMA_STATE_RESET             = 0x00,  /*!< DMA not yet initialized or disabled */  
@@ -120,7 +123,7 @@ typedef enum
   HAL_DMA_HALF_TRANSFER      = 0x01,    /*!< Half Transfer     */
 
 }HAL_DMA_LevelCompleteTypeDef;
-
+                                                                        
 
 /** 
   * @brief  DMA handle Structure definition  
@@ -140,20 +143,22 @@ typedef struct __DMA_HandleTypeDef
   void                  (* XferCpltCallback)( struct __DMA_HandleTypeDef * hdma);     /*!< DMA transfer complete callback         */
   
   void                  (* XferHalfCpltCallback)( struct __DMA_HandleTypeDef * hdma); /*!< DMA Half transfer complete callback    */
-
+  
   void                  (* XferErrorCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback            */
   
   __IO uint32_t         ErrorCode;                                                    /*!< DMA Error code                         */
   
 } DMA_HandleTypeDef;    
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
-
-/** @defgroup DMA_Exported_Constants
+/** @defgroup DMA_Exported_Constants DMA Exported Constants
   * @{
   */
 
-/** @defgroup DMA_Error_Code 
+/** @defgroup DMA_Error_Code DMA Error Code
   * @{
   */ 
 #define HAL_DMA_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error             */
@@ -163,7 +168,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Data_transfer_direction 
+/** @defgroup DMA_Data_transfer_direction DMA Data transfer direction
   * @{
   */ 
 #define DMA_PERIPH_TO_MEMORY         ((uint32_t)0x00000000)        /*!< Peripheral to memory direction */
@@ -177,7 +182,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Data_buffer_size 
+/** @defgroup DMA_Data_buffer_size DMA Data buffer size
   * @{
   */ 
 #define IS_DMA_BUFFER_SIZE(SIZE) (((SIZE) >= 0x1) && ((SIZE) < 0x10000))
@@ -185,7 +190,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */     
     
-/** @defgroup DMA_Peripheral_incremented_mode 
+/** @defgroup DMA_Peripheral_incremented_mode DMA Peripheral incremented mode
   * @{
   */ 
 #define DMA_PINC_ENABLE        ((uint32_t)DMA_CCR_PINC)  /*!< Peripheral increment mode Enable */
@@ -197,7 +202,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */ 
 
-/** @defgroup DMA_Memory_incremented_mode 
+/** @defgroup DMA_Memory_incremented_mode DMA Memory incremented mode
   * @{
   */ 
 #define DMA_MINC_ENABLE         ((uint32_t)DMA_CCR_MINC)  /*!< Memory increment mode Enable  */
@@ -209,7 +214,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Peripheral_data_size 
+/** @defgroup DMA_Peripheral_data_size DMA Peripheral data size
   * @{
   */ 
 #define DMA_PDATAALIGN_BYTE          ((uint32_t)0x00000000)       /*!< Peripheral data alignment : Byte     */
@@ -224,7 +229,7 @@ typedef struct __DMA_HandleTypeDef
   */ 
 
 
-/** @defgroup DMA_Memory_data_size
+/** @defgroup DMA_Memory_data_size DMA Memory data size
   * @{ 
   */
 #define DMA_MDATAALIGN_BYTE          ((uint32_t)0x00000000)       /*!< Memory data alignment : Byte     */
@@ -238,10 +243,10 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_mode 
+/** @defgroup DMA_mode DMA mode
   * @{
   */ 
-#define DMA_NORMAL         ((uint32_t)0x00000000)       /*!< Normal Mode                  */
+#define DMA_NORMAL         ((uint32_t)0x00000000)      /*!< Normal Mode                  */
 #define DMA_CIRCULAR       ((uint32_t)DMA_CCR_CIRC)    /*!< Circular Mode                */
 
 #define IS_DMA_MODE(MODE) (((MODE) == DMA_NORMAL )  || \
@@ -250,7 +255,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Priority_level 
+/** @defgroup DMA_Priority_level DMA Priority level
   * @{
   */
 #define DMA_PRIORITY_LOW             ((uint32_t)0x00000000)    /*!< Priority level : Low       */
@@ -267,7 +272,7 @@ typedef struct __DMA_HandleTypeDef
   */ 
 
 
-/** @defgroup DMA_interrupt_enable_definitions 
+/** @defgroup DMA_interrupt_enable_definitions DMA interrupt enable definitions
   * @{
   */
 
@@ -279,7 +284,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_flag_definitions 
+/** @defgroup DMA_flag_definitions DMA flag definitions
   * @{
   */ 
 
@@ -320,11 +325,11 @@ typedef struct __DMA_HandleTypeDef
 /**
   * @}
   */
-  
+
 /* Exported macros -----------------------------------------------------------*/
-/** @defgroup DMA_Exported_Macros
- * @{
- */
+/** @defgroup DMA_Exported_Macros DMA Exported Macros
+  * @{
+  */
 
 /** @brief  Reset DMA handle state
   * @param  __HANDLE__: DMA handle.
@@ -337,14 +342,14 @@ typedef struct __DMA_HandleTypeDef
   * @param  __HANDLE__: DMA handle
   * @retval None.
   */
-#define __HAL_DMA_ENABLE(__HANDLE__)        ((__HANDLE__)->Instance->CCR |=  DMA_CCR_EN)
+#define __HAL_DMA_ENABLE(__HANDLE__)        (SET_BIT((__HANDLE__)->Instance->CCR, DMA_CCR_EN))
 
 /**
   * @brief  Disable the specified DMA Channel.
   * @param  __HANDLE__: DMA handle
   * @retval None.
   */
-#define __HAL_DMA_DISABLE(__HANDLE__)       ((__HANDLE__)->Instance->CCR &=  ~DMA_CCR_EN)
+#define __HAL_DMA_DISABLE(__HANDLE__)       (CLEAR_BIT((__HANDLE__)->Instance->CCR, DMA_CCR_EN))
 
 
 /* Interrupt & Flag management */
@@ -359,7 +364,7 @@ typedef struct __DMA_HandleTypeDef
   *            @arg DMA_IT_TE:  Transfer error interrupt mask
   * @retval None
   */
-#define __HAL_DMA_ENABLE_IT(__HANDLE__, __INTERRUPT__)   ((__HANDLE__)->Instance->CCR |= (__INTERRUPT__))
+#define __HAL_DMA_ENABLE_IT(__HANDLE__, __INTERRUPT__)   (SET_BIT((__HANDLE__)->Instance->CCR, (__INTERRUPT__)))
 
 /**
   * @brief  Disables the specified DMA Channel interrupts.
@@ -371,7 +376,7 @@ typedef struct __DMA_HandleTypeDef
   *            @arg DMA_IT_TE:  Transfer error interrupt mask
   * @retval None
   */
-#define __HAL_DMA_DISABLE_IT(__HANDLE__, __INTERRUPT__)  ((__HANDLE__)->Instance->CCR &= ~(__INTERRUPT__))
+#define __HAL_DMA_DISABLE_IT(__HANDLE__, __INTERRUPT__)  (CLEAR_BIT((__HANDLE__)->Instance->CCR , (__INTERRUPT__)))
 
 /**
   * @brief  Checks whether the specified DMA Channel interrupt has occurred or not.
@@ -393,21 +398,48 @@ typedef struct __DMA_HandleTypeDef
 #include "stm32f0xx_hal_dma_ex.h"   
 
 /* Exported functions --------------------------------------------------------*/
-  
+/** @addtogroup DMA_Exported_Functions DMA Exported Functions
+  * @{
+  */
+/** @addtogroup DMA_Exported_Functions_Group1
+ *  @brief   Initialization and de-initialization functions
+  * @{
+  */
 /* Initialization and de-initialization functions *****************************/
 HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_DeInit (DMA_HandleTypeDef *hdma);
+/**
+  * @}
+  */
 
+/** @addtogroup DMA_Exported_Functions_Group2
+ *  @brief   I/O operation functions
+  * @{
+  */
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_DMA_Start (DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout);
 void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma);
+/**
+  * @}
+  */
 
 /* Peripheral State and Error functions ***************************************/
+/** @addtogroup DMA_Exported_Functions_Group3
+  *  @brief    Peripheral State functions
+  * @{
+  */
 HAL_DMA_StateTypeDef HAL_DMA_GetState(DMA_HandleTypeDef *hdma);
 uint32_t             HAL_DMA_GetError(DMA_HandleTypeDef *hdma);
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /**
   * @}
@@ -424,3 +456,4 @@ uint32_t             HAL_DMA_GetError(DMA_HandleTypeDef *hdma);
 #endif /* __STM32F0xx_HAL_DMA_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

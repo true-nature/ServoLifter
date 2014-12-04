@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 31/10/2014 11:25:40
+  * Date               : 04/12/2014 10:38:35
   * Description        : Main program body
   ******************************************************************************
   *
@@ -40,7 +40,23 @@
 #include "usart.h"
 #include "gpio.h"
 
+/* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
 /* Private variables ---------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
+
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+static void StartThread(void const * argument);
+
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
 #include "command.h"
@@ -52,10 +68,6 @@ static __IO uint32_t idxRxBuffer = 0;
 #define RX_EVENT_TIMEOUT_MS 100
 
 /* USER CODE END 0 */
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-static void StartThread(void const * argument);
 
 int main(void)
 {
@@ -77,9 +89,6 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
-  /* System interrupt init*/
-  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
-
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
@@ -97,7 +106,7 @@ int main(void)
   osThreadCreate (osThread(MOTOR_Thread), NULL);
   /* USER CODE END 2 */
 
-  /* Code generated for FreeRTOS */
+  /* Init code generated for FreeRTOS */
   /* Create Start thread */
   osThreadDef(USER_Thread, StartThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   osThreadCreate (osThread(USER_Thread), NULL);
@@ -122,9 +131,9 @@ int main(void)
 void SystemClock_Config(void)
 {
 
+  RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
 
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
@@ -166,7 +175,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 /* USER CODE END 4 */
 
-static void StartThread(void const * argument) {
+static void StartThread(void const * argument)
+{
 
   /* USER CODE BEGIN 5 */
 
@@ -188,7 +198,6 @@ static void StartThread(void const * argument) {
   /* USER CODE END 5 */ 
 
 }
- 
 
 #ifdef USE_FULL_ASSERT
 

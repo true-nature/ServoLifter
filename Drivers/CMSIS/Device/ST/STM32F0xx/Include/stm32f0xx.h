@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx.h
   * @author  MCD Application Team
-  * @version V2.0.1
-  * @date    18-June-2014
+  * @version V2.1.0
+  * @date    03-Oct-2014
   * @brief   CMSIS STM32F0xx Device Peripheral Access Layer Header File.           
   *            
   *          The file is the unique include file that the application programmer
@@ -72,7 +72,8 @@
     !defined (STM32F031x6) && !defined (STM32F038xx) &&                           \
     !defined (STM32F042x6) && !defined (STM32F048xx) &&                           \
     !defined (STM32F051x8) && !defined (STM32F058xx) &&                           \
-    !defined (STM32F071xB) && !defined (STM32F072xB) && !defined (STM32F078xx)
+    !defined (STM32F071xB) && !defined (STM32F072xB) && !defined (STM32F078xx) && \
+    !defined (STM32F091xC) && !defined (STM32F098xx)
   /* #define STM32F030x6 */  /*!< STM32F030x4, STM32F030x6 Devices (STM32F030xx microcontrollers where the Flash memory ranges between 16 and 32 Kbytes)              */
   /* #define STM32F030x8 */  /*!< STM32F030x8 Devices (STM32F030xx microcontrollers where the Flash memory is 64 Kbytes)                                              */
   /* #define STM32F031x6 */  /*!< STM32F031x4, STM32F031x6 Devices (STM32F031xx microcontrollers where the Flash memory ranges between 16 and 32 Kbytes)              */
@@ -84,6 +85,8 @@
   /* #define STM32F071xB */  /*!< STM32F071x8, STM32F071xB Devices (STM32F071xx microcontrollers where the Flash memory ranges between 64 and 128 Kbytes)             */
   /* #define STM32F072xB */  /*!< STM32F072x8, STM32F072xB Devices (STM32F072xx microcontrollers where the Flash memory ranges between 64 and 128 Kbytes)             */
   /* #define STM32F078xx */  /*!< STM32F078xx Devices (STM32F078xx microcontrollers where the Flash memory is 128 Kbytes)                                             */
+  /* #define STM32F091xC */  /*!< STM32F091xC Devices (STM32F091xx microcontrollers where the Flash memory is 256 Kbytes)                                             */
+  /* #define STM32F098xx */  /*!< STM32F098xx Devices (STM32F098xx microcontrollers where the Flash memory is 256 Kbytes)                                             */
 #endif
    
 /*  Tip: To avoid modifying this file each time you need to switch between these
@@ -99,11 +102,11 @@
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number V2.0.1
+  * @brief CMSIS Device version number V2.1.0
   */
 #define __STM32F0xx_CMSIS_DEVICE_VERSION_MAIN   (0x02) /*!< [31:24] main version */
 #define __STM32F0xx_CMSIS_DEVICE_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
-#define __STM32F0xx_CMSIS_DEVICE_VERSION_SUB2   (0x01) /*!< [15:8]  sub2 version */
+#define __STM32F0xx_CMSIS_DEVICE_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
 #define __STM32F0xx_CMSIS_DEVICE_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
 #define __STM32F0xx_CMSIS_DEVICE_VERSION        ((__CMSIS_DEVICE_VERSION_MAIN     << 24)\
                                                 |(__CMSIS_DEVICE_HAL_VERSION_SUB1 << 16)\
@@ -140,6 +143,10 @@
   #include "stm32f072xb.h"
 #elif defined(STM32F078xx)
   #include "stm32f078xx.h"
+#elif defined(STM32F091xC)
+  #include "stm32f091xc.h"
+#elif defined(STM32F098xx)
+  #include "stm32f098xx.h"  
 #else
  #error "Please select first the target STM32F0xx device used in your application (in stm32f0xx.h file)"
 #endif
@@ -191,8 +198,6 @@ typedef enum
 #define READ_REG(REG)         ((REG))
 
 #define MODIFY_REG(REG, CLEARMASK, SETMASK)  WRITE_REG((REG), (((READ_REG(REG)) & (~(CLEARMASK))) | (SETMASK)))
-
-#define POSITION_VAL(VAL)     (__CLZ(__RBIT(VAL))) 
 
 
 /**

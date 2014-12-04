@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_i2c_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   I2C Extension HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2C extension peripheral:
@@ -27,8 +27,8 @@
     (#) Configure I2C Analog noise filter using the function HAL_I2CEx_AnalogFilter_Config()
     (#) Configure I2C Digital noise filter using the function HAL_I2CEx_DigitalFilter_Config()
     (#) Configure the enabling or disabling of I2C Wake Up Mode using the functions :
-          + HAL_I2CEx_EnableWakeUp()
-          + HAL_I2CEx_DisableWakeUp()
+          (++) HAL_I2CEx_EnableWakeUp()
+          (++) HAL_I2CEx_DisableWakeUp()
   
   @endverbatim
   ******************************************************************************
@@ -68,7 +68,7 @@
   * @{
   */
 
-/** @defgroup I2CEx
+/** @defgroup I2CEx I2CEx Extended HAL module driver
   * @brief I2C Extended HAL module driver
   * @{
   */
@@ -82,12 +82,11 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup I2CEx_Private_Functions
+/** @defgroup I2CEx_Exported_Functions I2CEx Exported Functions
   * @{
   */
 
-
-/** @defgroup I2CEx_Group1 Extended features functions
+/** @defgroup I2CEx_Exported_Functions_Group1 Extended features functions
   * @brief    Extended features functions
   *
 @verbatim   

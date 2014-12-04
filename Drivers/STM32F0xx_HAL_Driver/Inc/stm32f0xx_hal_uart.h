@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_uart.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   Header file of UART HAL module.
   ******************************************************************************
   * @attention
@@ -55,6 +55,10 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @defgroup UART_Exported_Types UART Exported Types
+  * @{
+  */ 
+
 
 /** 
   * @brief UART Init Structure definition  
@@ -83,17 +87,17 @@ typedef struct
                                                  the word length is set to 9 data bits; 8th bit when the
                                                  word length is set to 8 data bits). */
  
-  uint32_t Mode;                      /*!< Specifies wether the Receive or Transmit mode is enabled or disabled.
+  uint32_t Mode;                      /*!< Specifies whether the Receive or Transmit mode is enabled or disabled.
                                            This parameter can be a value of @ref UART_Mode */
 
-  uint32_t HwFlowCtl;                 /*!< Specifies wether the hardware flow control mode is enabled
+  uint32_t HwFlowCtl;                 /*!< Specifies whether the hardware flow control mode is enabled
                                            or disabled.
                                            This parameter can be a value of @ref UART_Hardware_Flow_Control */
   
-  uint32_t OverSampling;              /*!< Specifies wether the Over sampling 8 is enabled or disabled, to achieve higher speed (up to fPCLK/8).
+  uint32_t OverSampling;              /*!< Specifies whether the Over sampling 8 is enabled or disabled, to achieve higher speed (up to fPCLK/8).
                                            This parameter can be a value of @ref UART_Over_Sampling */  
                                            
-  uint32_t OneBitSampling;            /*!< Specifies wether a single sample or three samples' majority vote is selected.
+  uint32_t OneBitSampling;            /*!< Specifies whether a single sample or three samples' majority vote is selected.
                                            Selecting the single sample method increases the receiver tolerance to clock
                                            deviations. This parameter can be a value of @ref UART_OneBit_Sampling. */                                                 
 }UART_InitTypeDef;
@@ -230,9 +234,12 @@ typedef struct
   
 }UART_HandleTypeDef;
 
+/**
+  * @}
+  */
   
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup UART_Exported_Constants
+/** @defgroup UART_Exported_Constants UART Exported constants
   * @{
   */
 
@@ -398,12 +405,14 @@ typedef struct
   * @}
   */
 
-/**       Elements values convention: 000000000XXYYYYYb
+/** @defgroup UART_IT   UART IT 
+  *       Elements values convention: 000000000XXYYYYYb
   *           - YYYYY  : Interrupt source position in the XX register (5bits)
   *           - XX  : Interrupt source register (2bits)
   *                 - 01: CR1 register
   *                 - 10: CR2 register
   *                 - 11: CR3 register
+  * @{
   */
 #define UART_IT_ERR                         ((uint16_t)0x0060)
 
@@ -413,6 +422,9 @@ typedef struct
 #define UART_IT_ORE                         ((uint16_t)0x0300)
 #define UART_IT_NE                          ((uint16_t)0x0200)
 #define UART_IT_FE                          ((uint16_t)0x0100)
+/**
+  * @}
+  */
 
 /** @defgroup UART_Advanced_Features_Initialization_Type  UART Advanced Feature Initialization Type
   * @{
@@ -593,8 +605,8 @@ typedef struct
   * @}
   */
 
-/* Exported macros -----------------------------------------------------------*/
-/** @defgroup UART_Exported_Macros
+/* Exported macro ------------------------------------------------------------*/
+/** @defgroup UART_Exported_Macros UART Exported Macros
   * @{
   */
   
@@ -761,7 +773,7 @@ typedef struct
   *            @arg UART_TXDATA_FLUSH_REQUEST: Transmit data flush Request (not available on F030xx devices) 
   * @retval None
   */
-#define __HAL_UART_SEND_REQ(__HANDLE__, __REQ__) ((__HANDLE__)->Instance->RQR |= (uint32_t)(__REQ__)) 
+#define __HAL_UART_SEND_REQ(__HANDLE__, __REQ__) ((__HANDLE__)->Instance->RQR |= (uint16_t)(__REQ__)) 
 
 /** @brief  Enable UART
   * @param  __HANDLE__: specifies the UART Handle.
@@ -776,6 +788,15 @@ typedef struct
   * @retval None
   */
 #define __HAL_UART_DISABLE(__HANDLE__)                  ((__HANDLE__)->Instance->CR1 &=  ~USART_CR1_UE)
+
+/**
+  * @}
+  */
+
+/* Private macros --------------------------------------------------------*/
+/** @defgroup UART_Private_Macros   UART Private Macros
+  * @{
+  */
 
 /** @brief  BRR division operation to set BRR register in 8-bit oversampling mode
   * @param  _PCLK_: UART clock
@@ -819,22 +840,30 @@ typedef struct
 #include "stm32f0xx_hal_uart_ex.h"  
 
 /* Exported functions --------------------------------------------------------*/
+
+/** @addtogroup UART_Exported_Functions UART Exported Functions
+  * @{
+  */
+  
+/** @addtogroup UART_Exported_Functions_Group1 Initialization and de-initialization functions 
+  * @{
+  */
+
 /* Initialization and de-initialization functions  ****************************/
-HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart);
-void UART_AdvFeatureConfig(UART_HandleTypeDef *huart);
-HAL_StatusTypeDef UART_CheckIdleState(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_MultiProcessor_Init(UART_HandleTypeDef *huart, uint8_t Address, uint32_t WakeUpMethod);
 HAL_StatusTypeDef HAL_UART_DeInit (UART_HandleTypeDef *huart);
 void HAL_UART_MspInit(UART_HandleTypeDef *huart);
 void HAL_UART_MspDeInit(UART_HandleTypeDef *huart);
-HAL_StatusTypeDef HAL_MultiProcessor_EnableMuteMode(UART_HandleTypeDef *huart);
-HAL_StatusTypeDef HAL_MultiProcessor_DisableMuteMode(UART_HandleTypeDef *huart);
-void HAL_MultiProcessor_EnterMuteMode(UART_HandleTypeDef *huart);
-HAL_StatusTypeDef HAL_HalfDuplex_EnableTransmitter(UART_HandleTypeDef *huart);
-HAL_StatusTypeDef HAL_HalfDuplex_EnableReceiver(UART_HandleTypeDef *huart);
-HAL_StatusTypeDef UART_WaitOnFlagUntilTimeout(UART_HandleTypeDef *huart, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
+
+/**
+  * @}
+  */
+
+/** @addtogroup UART_Exported_Functions_Group2 IO operation functions 
+  * @{
+  */
 
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
@@ -846,17 +875,36 @@ HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData
 HAL_StatusTypeDef HAL_UART_DMAPause(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UART_DMAResume(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart);
-void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
-void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart);
+void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart);
-HAL_StatusTypeDef UART_Transmit_IT(UART_HandleTypeDef *huart);
-HAL_StatusTypeDef UART_Receive_IT(UART_HandleTypeDef *huart);
+
+/**
+  * @}
+  */
+
+/** @addtogroup UART_Exported_Functions_Group3 Peripheral Control functions
+  * @{
+  */
 
 /* Peripheral Control functions ***********************************************/
+void HAL_MultiProcessor_EnterMuteMode(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef HAL_MultiProcessor_EnableMuteMode(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef HAL_MultiProcessor_DisableMuteMode(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef HAL_HalfDuplex_EnableTransmitter(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef HAL_HalfDuplex_EnableReceiver(UART_HandleTypeDef *huart);
 
-/* Peripheral State and Error functions ***************************************/
+/**
+  * @}
+  */
+
+/** @addtogroup UART_Exported_Functions_Group4 Peripheral State and Errors functions 
+  * @{
+  */
+
+/* Peripheral State and Errors functions  **************************************************/
 HAL_UART_StateTypeDef HAL_UART_GetState(UART_HandleTypeDef *huart);
 uint32_t HAL_UART_GetError(UART_HandleTypeDef *huart);
 
@@ -868,6 +916,27 @@ uint32_t HAL_UART_GetError(UART_HandleTypeDef *huart);
   * @}
   */ 
 
+/** @addtogroup UART_Private_Functions
+  * @{
+  */
+void UART_AdvFeatureConfig(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef UART_CheckIdleState(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef UART_Transmit_IT(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef UART_Receive_IT(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef UART_WaitOnFlagUntilTimeout(UART_HandleTypeDef *huart, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
+/**
+  * @}
+  */ 
+  
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */
+
 #ifdef __cplusplus
 }
 #endif
@@ -875,3 +944,4 @@ uint32_t HAL_UART_GetError(UART_HandleTypeDef *huart);
 #endif /* __STM32F0xx_HAL_UART_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

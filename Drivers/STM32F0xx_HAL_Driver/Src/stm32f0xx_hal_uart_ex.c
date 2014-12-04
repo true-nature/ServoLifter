@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_uart_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   Extended UART HAL module driver.
   *    
   *          This file provides firmware functions to manage the following extended
@@ -17,7 +17,7 @@
                         ##### How to use this driver #####
  ===============================================================================
    [..]
-    The UART HAL driver can be used as follows:
+    The Extended UART HAL driver can be used as follows:
     
     (#) Declare a UART_HandleTypeDef handle structure.
 
@@ -63,6 +63,11 @@
   * @{
   */
 
+/** @defgroup UARTEx UARTEx Extended HAL module driver
+  * @brief UART Extended HAL module driver
+  * @{
+  */
+
 #ifdef HAL_UART_MODULE_ENABLED
 
 /* Private typedef -----------------------------------------------------------*/
@@ -70,26 +75,31 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
+
+/** @defgroup UARTEx_Private_Functions UARTEx Private Functions
+  * @{
+  */
 #if !defined(STM32F030x6) && !defined(STM32F030x8)  
 static void UART_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpTypeDef WakeUpSelection);
 #endif /* !defined(STM32F030x6) && !defined(STM32F030x8) */
-/* Private functions ---------------------------------------------------------*/
+static HAL_StatusTypeDef UART_EndTransmit_IT(UART_HandleTypeDef *huart);
 
-/** @addtogroup UART 
-  * @brief UART HAL module driver
+/**
+  * @}
+  */
+
+/* Exported functions ---------------------------------------------------------*/
+
+/** @defgroup UARTEx_Exported_Functions UARTEx Exported Functions
   * @{
   */
 
-/** @addtogroup UART_Private_Functions
-  * @{
-  */
-
-/** @defgroup UART_Group4 Extended IO operation function 
+/** @defgroup UARTEx_Exported_Functions_Group2 Extended IO operation function 
   * @brief    UART Interrupt handling function 
   *
 @verbatim   
  ===============================================================================
-                      ##### I/O operation function #####
+                      ##### IO operation function #####
  ===============================================================================  
     This subsection provides functions allowing to manage the UART interrupts
     and to handle Wake up interrupt call-back.
@@ -104,7 +114,6 @@ static void UART_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpType
 @endverbatim
   * @{
   */
-
 
 /**
   * @brief This function handles UART interrupt request.
@@ -185,6 +194,11 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
     UART_Transmit_IT(huart);
   } 
   
+  /* UART in mode Transmitter ------------------------------------------------*/
+ if((__HAL_UART_GET_IT(huart, UART_IT_TC) != RESET) &&(__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TC) != RESET))
+  {
+    UART_EndTransmit_IT(huart);
+  }  
 }
 
 #if !defined(STM32F030x6) && !defined(STM32F030x8) 
@@ -205,24 +219,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
   * @}
   */
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/** @defgroup UARTEx
-  * @brief UART Extended HAL module driver
-  * @{
-  */
-
-/** @defgroup UARTEx_Private_Functions
-  * @{
-  */
-
-/** @defgroup UARTEx_Group1 Extended Initialization/de-initialization functions
+/** @defgroup UARTEx_Exported_Functions_Group1 Extended Initialization/de-initialization functions
   * @brief    Extended Initialization and Configuration Functions
   *
 @verbatim    
@@ -427,7 +424,7 @@ HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLe
   * @}
   */
 
-/** @defgroup UARTEx_Group3 Extended Peripheral Control functions
+/** @defgroup UARTEx_Exported_Functions_Group3 Extended Peripheral Control functions
   * @brief    Extended Peripheral Control functions
   *
 @verbatim   
@@ -449,9 +446,6 @@ HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLe
 @endverbatim
   * @{
   */
-
-
-
 
 #if !defined(STM32F030x6) && !defined(STM32F030x8)
 /**
@@ -503,7 +497,6 @@ HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huar
     return HAL_OK;
   }
 }
-
 
 /**
   * @brief Enable UART Stop Mode
@@ -559,9 +552,7 @@ HAL_StatusTypeDef HAL_UARTEx_DisableStopMode(UART_HandleTypeDef *huart)
 }
 
 #endif /* !defined(STM32F030x6) && !defined(STM32F030x8) */
-
-
-                 
+                
 /**
   * @brief By default in multiprocessor mode, when the wake up method is set 
   *        to address mark, the UART handles only 4-bit long addresses detection. 
@@ -627,6 +618,43 @@ static void UART_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpType
 /**
   * @}
   */
+
+/**
+  * @}
+  */  
+
+/** @addtogroup UARTEx_Private_Functions
+  * @{
+  */
+  
+/**
+  * @brief  Wraps up transmission in non blocking mode.
+  * @param  huart: pointer to a UART_HandleTypeDef structure that contains
+  *                the configuration information for the specified UART module.
+  * @retval HAL status
+  */
+static HAL_StatusTypeDef UART_EndTransmit_IT(UART_HandleTypeDef *huart)
+{
+  /* Disable the UART Transmit Complete Interrupt */    
+  __HAL_UART_DISABLE_IT(huart, UART_IT_TC);
+  
+  /* Check if a receive process is ongoing or not */
+  if(huart->State == HAL_UART_STATE_BUSY_TX_RX) 
+  {
+    huart->State = HAL_UART_STATE_BUSY_RX;
+  }
+  else
+  {
+    /* Disable the UART Error Interrupt: (Frame error, noise error, overrun error) */
+    __HAL_UART_DISABLE_IT(huart, UART_IT_ERR);
+    
+    huart->State = HAL_UART_STATE_READY;
+  }
+  
+  HAL_UART_TxCpltCallback(huart);
+  
+  return HAL_OK;
+}
 
 /**
   * @}

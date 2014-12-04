@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_flash_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    03-Oct-2014
   * @brief   Header file of FLASH HAL Extension module.
   ******************************************************************************
   * @attention
@@ -55,18 +55,11 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
-/** @defgroup FLASHEx_Exported_Types
-  * @{
-  */  
-/**
-  * @}
-  */
-
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup FLASHEx_Exported_Constants
+/** @defgroup FLASHEx_Exported_Constants FLASHEx Exported Constants
   * @{
   */  
-/** @defgroup FLASHEx_Address
+/** @defgroup FLASHEx_Address FLASHEx Address
   * @{
   */
 #if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F038xx)
@@ -80,11 +73,15 @@
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
 #define IS_FLASH_PROGRAM_ADDRESS(ADDRESS) (((ADDRESS) >= 0x08000000) && ((ADDRESS) <= 0x0801FFFF))
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+
+#if defined(STM32F091xC) || defined(STM32F098xx)
+#define IS_FLASH_PROGRAM_ADDRESS(ADDRESS) (((ADDRESS) >= 0x08000000) && ((ADDRESS) <= 0x0803FFFF))
+#endif /* STM32F091xC || STM32F098xx */
 /**
   * @}
   */
 
-/** @defgroup FLASHEx_Page_Size
+/** @defgroup FLASHEx_Page_Size FLASHEx Page Size
   * @{
   */
 #if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F031x6) || defined(STM32F038xx) || \
@@ -92,15 +89,16 @@
 #define FLASH_PAGE_SIZE          0x400
 #endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F051x8 || STM32F042x6 || STM32F048xx || STM32F058xx */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
 #define FLASH_PAGE_SIZE          0x800
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F091xC || STM32F098xx */
 
 /**
   * @}
   */
 
-/** @defgroup FLASHEx_Nb_Pages
+/** @defgroup FLASHEx_Nb_Pages FLASHEx Nb Pages
   * @{
   */
 #if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F038xx)
@@ -114,11 +112,15 @@
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
 #define IS_FLASH_NB_PAGES(ADDRESS,NBPAGES) ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x0801FFFF)
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+      
+#if defined(STM32F091xC) || defined(STM32F098xx)
+#define IS_FLASH_NB_PAGES(ADDRESS,NBPAGES) ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x0803FFFF)
+#endif /* STM32F091xC || STM32F098xx */
 /**
   * @}
   */
 
-/** @defgroup FLASHEx_OB_Write_Protection
+/** @defgroup FLASHEx_OB_Write_Protection FLASHEx OB Write Protection
   * @{
   */
 #if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F031x6) || defined(STM32F038xx) || \
@@ -156,7 +158,8 @@
 #endif /* STM32F030x8 || STM32F051x8 || STM32F058xx */
 #endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F051x8 || STM32F042x6 || STM32F048xx || STM32F038xx || STM32F058xx */
       
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
 #define OB_WRP_PAGES0TO1               ((uint32_t)0x00000001) /* Write protection of page 0 to 1 */
 #define OB_WRP_PAGES2TO3               ((uint32_t)0x00000002) /* Write protection of page 2 to 3 */
 #define OB_WRP_PAGES4TO5               ((uint32_t)0x00000004) /* Write protection of page 4 to 5 */
@@ -191,6 +194,9 @@
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
 #define OB_WRP_PAGES62TO63             ((uint32_t)0x80000000) /* Write protection of page 62 to 63 */
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#if defined(STM32F091xC) || defined(STM32F098xx)
+#define OB_WRP_PAGES62TO127            ((uint32_t)0x80000000) /* Write protection of page 62 to 127 */
+#endif /* STM32F091xC || STM32F098xx */
 
 #define OB_WRP_PAGES0TO15MASK          ((uint32_t)0x000000FF)
 #define OB_WRP_PAGES16TO31MASK         ((uint32_t)0x0000FF00)
@@ -198,17 +204,20 @@
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
 #define OB_WRP_PAGES48TO63MASK         ((uint32_t)0xFF000000)
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#if defined(STM32F091xC) || defined(STM32F098xx)
+#define OB_WRP_PAGES48TO127MASK        ((uint32_t)0xFF000000)
+#endif /* STM32F091xC || STM32F098xx */
 
 #define OB_WRP_ALLPAGES                ((uint32_t)0xFFFFFFFF) /*!< Write protection of all pages */
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx  || STM32F091xC || STM32F098xx */
 
 #define IS_OB_WRP(PAGE) (((PAGE) != 0x0000000))
 /**
   * @}
   */
 
-#if defined(STM32F042x6) || defined(STM32F048xx)
-/** @defgroup FLASHEx_OB_BOOT_SEL
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F091xC) || defined(STM32F098xx)
+/** @defgroup FLASHEx_OB_BOOT_SEL FLASHEx OB BOOT SEL
   * @{
   */
 #define OB_BOOT_SEL_RESET          ((uint8_t)0x00) /*!< BOOT_SEL Reset */
@@ -218,7 +227,7 @@
   * @}
   */  
 
-/** @defgroup FLASHEx_OB_BOOT0
+/** @defgroup FLASHEx_OB_BOOT0 FLASHEx OB BOOT0
   * @{
   */
 #define OB_BOOT0_RESET             ((uint8_t)0x00) /*!< BOOT0 Reset */
@@ -227,7 +236,7 @@
 /**
   * @}
   */  
-#endif /* STM32F042x6 || STM32F048xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F091xC || STM32F098xx */
 
 /**
   * @}
@@ -236,11 +245,26 @@
 /* Exported macro ------------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-
+/** @addtogroup FLASHEx_Exported_Functions FLASHEx Exported Functions
+  * @{
+  */
+  
+/** @addtogroup FLASHEx_Exported_Functions_Group2 Extended I/O operation functions
+  * @brief    Extended I/O operation functions
+  * @{
+  */   
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef  HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t *PageError);
 HAL_StatusTypeDef  HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit);
 
+/**
+  * @}
+  */ 
+
+/** @addtogroup FLASHEx_Exported_Functions_Group3 Extended Peripheral Control functions
+  * @brief    Extended Peripheral Control functions
+  * @{
+  */   
 /* Peripheral Control functions ***********************************************/
 HAL_StatusTypeDef  HAL_FLASHEx_OBErase(void);
 HAL_StatusTypeDef  HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit);
@@ -253,6 +277,15 @@ void               HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit);
 /**
   * @}
   */
+  
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+    
 #ifdef __cplusplus
 }
 #endif
@@ -260,3 +293,4 @@ void               HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit);
 #endif /* __STM32F0xx_HAL_FLASH_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
