@@ -23,8 +23,8 @@
 
 #define I2C_EEPROM_ADDR_w (0xA0)
 #define I2C_EEPROM_ADDR_r (0xA1)
-#define I2C_MEM_ADDRESS (0x0000)
-#define I2C_MEM_TIMEOUT_ms (10)
+#define I2C_EEPROM_REG (0x0000)
+#define I2C_EEPROM_TIMEOUT_ms (200)
 
 static uint8_t debug = 0;
 static uint8_t flag_locked = 0;
@@ -241,11 +241,12 @@ static HAL_StatusTypeDef CfgSave(void)
 		{
 			CfgBuffer.PutPosition[index] = Servo[index].PutPosition;
 		}
-		status = HAL_I2C_IsDeviceReady(&hi2c1, I2C_EEPROM_ADDR_r, 3, I2C_MEM_TIMEOUT_ms);
+		status = HAL_I2C_IsDeviceReady(&hi2c1, I2C_EEPROM_ADDR_w, 3, I2C_EEPROM_TIMEOUT_ms);
 		if (status != HAL_OK) {
 			break;
 		}
-		status = HAL_I2C_Mem_Write(&hi2c1, I2C_EEPROM_ADDR_w, I2C_MEM_ADDRESS, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&CfgBuffer, sizeof(CfgBuffer), I2C_MEM_TIMEOUT_ms);
+		status = HAL_I2C_Mem_Write(&hi2c1, I2C_EEPROM_ADDR_w, I2C_EEPROM_REG, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&CfgBuffer, sizeof(CfgDef), I2C_EEPROM_TIMEOUT_ms);
+		HAL_Delay(30);
 	} while(0);
 	return status;
 }
@@ -255,11 +256,11 @@ static HAL_StatusTypeDef CfgLoad(void)
 {
 	HAL_StatusTypeDef status;
 	do {
-		status = HAL_I2C_IsDeviceReady(&hi2c1, I2C_EEPROM_ADDR_r, 3, I2C_MEM_TIMEOUT_ms);
+		status = HAL_I2C_IsDeviceReady(&hi2c1, I2C_EEPROM_ADDR_r, 3, I2C_EEPROM_TIMEOUT_ms);
 		if (status != HAL_OK) {
 			break;
 		}
-		status = HAL_I2C_Mem_Read(&hi2c1, I2C_EEPROM_ADDR_r, I2C_MEM_ADDRESS, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&CfgBuffer, sizeof(CfgBuffer), I2C_MEM_TIMEOUT_ms);
+		status = HAL_I2C_Mem_Read(&hi2c1, I2C_EEPROM_ADDR_r, I2C_EEPROM_REG, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&CfgBuffer, sizeof(CfgDef), I2C_EEPROM_TIMEOUT_ms);
 		if (status != HAL_OK) {
 			break;
 		}
