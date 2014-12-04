@@ -19,6 +19,7 @@
 #define MSG_NOT_CLEAR "Not cleared. Reader can put only if no cards were put on.\r\n"
 #define MSG_BEAM_EMPTY "No beam is put on.\r\n"
 #define MSG_ALREADY_LOCKED "Warning! Already Locked.\r\nPlease RESET and Lock again.\r\n"
+#define MSG_BEAM_TOO_MANY "Only one beam should be put on.\r\n"
 
 #define I2C_EEPROM_ADDR_w (0xA0)
 #define I2C_EEPROM_ADDR_r (0xA1)
@@ -38,6 +39,8 @@ static void cmdPutOn(CommandBufferDef *cmd);
 static void cmdTakeOff(CommandBufferDef *cmd);
 static void cmdClear(CommandBufferDef *cmd);
 static void cmdLock(CommandBufferDef *cmd);
+static void cmdUp(CommandBufferDef *cmd);
+static void cmdDown(CommandBufferDef *cmd);
 static void cmdNeutral(CommandBufferDef *cmd);
 static void cmdHelp(CommandBufferDef *cmd);
 static void cmdDebug(CommandBufferDef *cmd);
@@ -55,7 +58,9 @@ static const CommandOp CmdDic[] = {
 	{"VERSION", cmdVersion},
 	{"NEUTRAL", cmdNeutral},
 	{"LOCK", cmdLock},
-	{"DEBUG", cmdDebug},
+	{"UP", cmdUp},
+	{"DOWN", cmdDown},
+	{"ENABLE_DEBUG", cmdDebug},
 	{NULL, NULL}
 };
 
@@ -76,9 +81,13 @@ typedef struct {
 #define SERVO_NEUTRAL_POS DEG2PULSE(0)
 
 #define CARD_PUT_POS DEG2PULSE(45)
-#define CARD_TAKE_POS DEG2PULSE(-45)
+#define CARD_TAKE_POS DEG2PULSE(-50)
 #define RW_PUT_POS DEG2PULSE(50)
 #define RW_TAKE_POS DEG2PULSE(-45)
+
+#define SERVO_POSITION_MIN 900
+#define SERVO_POSITION_MAX 1950
+#define SERVO_ADJUST_STEP 3
 
 static ServoActionDef Servo[] = {
 	{"R", &htim2, TIM_CHANNEL_4, RW_PUT_POS, RW_TAKE_POS, RW_TAKE_POS, RW_TAKE_POS, RW_TAKE_POS},
@@ -197,9 +206,9 @@ static int16_t PopBeam()
 }
 
 /**
-  * Put a card on the RF antenna.
+  * Enable/Disable debug dump of arm position.
 	*
-	* PUTON <A/B/C/D>
+	* DEBUG <0/1>
   */
 static void cmdDebug(CommandBufferDef *cmd)
 {
@@ -250,6 +259,23 @@ static void RescanPosition()
 	for (int index = 0; index < NUM_OF_SERVO; index++)
 	{
 		Servo[index].position = __HAL_TIM_GetCompare(Servo[index].htim_base, Servo[index].channel);
+	}
+}
+
+/**
+ * Adujst put position of selected servo.
+ *
+ * @param index Index of servo to adjust.
+ * @param offset Adjustment offset from current position.
+ */
+static void AdjustPutPosition(int16_t index, int16_t offset)
+{
+	ServoActionDef *servo = &Servo[index];
+	servo->PutPosition += offset;
+	if (servo->PutPosition < SERVO_POSITION_MIN) {
+		servo->PutPosition = SERVO_POSITION_MIN;
+	} else if (servo->PutPosition > SERVO_POSITION_MAX) {
+		servo->PutPosition = SERVO_POSITION_MAX;
 	}
 }
 
@@ -344,7 +370,51 @@ static void cmdLock(CommandBufferDef *cmd)
 }
 
 /**
-  * Move arms to neutral position of servo.
+  * Adjust arm position to upper angle.
+  */
+static void cmdUp(CommandBufferDef *cmd)
+{
+	if (BeamPtr == 0)
+	{
+		PutStr(MSG_BEAM_EMPTY);
+		return;
+	} 
+	else if (BeamPtr > 1) {
+		PutStr(MSG_BEAM_TOO_MANY);
+		return;
+	}
+	PutStr("UP ");
+	// adjust up
+	int16_t index = BeamStack[0];
+	AdjustPutPosition(index, -SERVO_ADJUST_STEP);
+	moveServo(index, Servo[index].PutPosition);
+	PutStr("\r\n");
+}
+
+/**
+  * Adjust arm position to lower angle.
+  */
+static void cmdDown(CommandBufferDef *cmd)
+{
+	if (BeamPtr == 0)
+	{
+		PutStr(MSG_BEAM_EMPTY);
+		return;
+	} 
+	else if (BeamPtr > 1) {
+		PutStr(MSG_BEAM_TOO_MANY);
+		return;
+	}
+	PutStr("DOWN ");
+	// adjust down
+	int16_t index = BeamStack[0];
+	AdjustPutPosition(index, +SERVO_ADJUST_STEP);
+	moveServo(index, Servo[index].PutPosition);
+	PutStr("\r\n");
+}
+
+/**
+  * Move arms to neutral po	sition of servo.
   */
 static void cmdNeutral(CommandBufferDef *cmd)
 {
@@ -425,8 +495,10 @@ static void cmdHelp(CommandBufferDef *cmd)
 	PutStr("PUTON <A|B|C|D|R>\r\n  Put a card or the Reader to the target.\r\n");
 	PutStr("TAKEOFF\r\n  Take a card or the Reader from the target.\r\n");
 	PutStr("CLEAR\r\n  Take all cards and the Reader from the target.\r\n");
-	PutStr("NEUTRAL\r\n  Move all servo motors to neutral position.\r\n");
 	PutStr("LOCK\r\n  Lock all arms except R to flat position.\r\n");
+	PutStr("UP\r\n  Adjust arm position to upper angle.\r\n");
+	PutStr("DOWN\r\n   Adjust arm position to lower angle.\r\n");
+	PutStr("NEUTRAL\r\n  Move all servo motors to neutral position.\r\n");
 }
 
 void StartMotorThread(void const * argument)
