@@ -7,7 +7,7 @@
 #define __COMMAND_H
 #include "cmsis_os.h"
 
-#define VERSION_STR "ServoLifter version 0.1"
+#define VERSION_STR "ServoLifter version 0.2"
 
 #define MAX_COMMAND_LENGTH 127
 

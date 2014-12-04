@@ -23,6 +23,8 @@
 
 #define I2C_EEPROM_ADDR_w (0xA0)
 #define I2C_EEPROM_ADDR_r (0xA1)
+#define I2C_MEM_ADDRESS (0x0000)
+#define I2C_MEM_TIMEOUT_ms (10)
 
 static uint8_t debug = 0;
 static uint8_t flag_locked = 0;
@@ -41,6 +43,8 @@ static void cmdClear(CommandBufferDef *cmd);
 static void cmdLock(CommandBufferDef *cmd);
 static void cmdUp(CommandBufferDef *cmd);
 static void cmdDown(CommandBufferDef *cmd);
+static void cmdSave(CommandBufferDef *cmd);
+static void cmdInit(CommandBufferDef *cmd);
 static void cmdNeutral(CommandBufferDef *cmd);
 static void cmdHelp(CommandBufferDef *cmd);
 static void cmdDebug(CommandBufferDef *cmd);
@@ -60,6 +64,8 @@ static const CommandOp CmdDic[] = {
 	{"LOCK", cmdLock},
 	{"UP", cmdUp},
 	{"DOWN", cmdDown},
+	{"SAVE", cmdSave},
+	{"INIT", cmdInit},
 	{"ENABLE_DEBUG", cmdDebug},
 	{NULL, NULL}
 };
@@ -86,8 +92,8 @@ typedef struct {
 #define RW_TAKE_POS DEG2PULSE(-45)
 
 #define SERVO_POSITION_MIN 900
-#define SERVO_POSITION_MAX 1950
-#define SERVO_ADJUST_STEP 3
+#define SERVO_POSITION_MAX 2100
+#define SERVO_ADJUST_STEP 1
 
 static ServoActionDef Servo[] = {
 	{"R", &htim2, TIM_CHANNEL_4, RW_PUT_POS, RW_TAKE_POS, RW_TAKE_POS, RW_TAKE_POS, RW_TAKE_POS},
@@ -101,6 +107,27 @@ static const int16_t READER_INDEX = 0;
 
 static int16_t BeamStack[NUM_OF_SERVO];
 static int16_t BeamPtr;
+
+typedef __packed struct {
+	char magic[2];
+	uint8_t major;
+	uint8_t minor;
+	uint32_t PutPosition[NUM_OF_SERVO];
+} __attribute__((packed)) CfgDef;
+
+static const CfgDef CfgDefault = {
+ .magic = {'S', 'L'},
+ .major = 0x00,
+ .minor = 0x00,
+ .PutPosition = {
+   RW_PUT_POS,
+   CARD_PUT_POS,
+   CARD_PUT_POS,
+   CARD_PUT_POS,
+   CARD_PUT_POS,
+ }
+ };
+static CfgDef CfgBuffer;
 
 static uint32_t ActiveChannel2Channel(HAL_TIM_ActiveChannel ac)
 {
@@ -203,6 +230,52 @@ static int16_t PopBeam()
 	{
 		return -1;
 	}
+}
+
+static HAL_StatusTypeDef CfgSave(void)
+{
+	HAL_StatusTypeDef status;
+	do {
+		memcpy(&CfgBuffer, &CfgDefault, sizeof(CfgDef));
+		for (uint16_t index = 0; index < NUM_OF_SERVO; index++)
+		{
+			CfgBuffer.PutPosition[index] = Servo[index].PutPosition;
+		}
+		status = HAL_I2C_IsDeviceReady(&hi2c1, I2C_EEPROM_ADDR_r, 3, I2C_MEM_TIMEOUT_ms);
+		if (status != HAL_OK) {
+			break;
+		}
+		status = HAL_I2C_Mem_Write(&hi2c1, I2C_EEPROM_ADDR_w, I2C_MEM_ADDRESS, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&CfgBuffer, sizeof(CfgBuffer), I2C_MEM_TIMEOUT_ms);
+	} while(0);
+	return status;
+}
+
+
+static HAL_StatusTypeDef CfgLoad(void)
+{
+	HAL_StatusTypeDef status;
+	do {
+		status = HAL_I2C_IsDeviceReady(&hi2c1, I2C_EEPROM_ADDR_r, 3, I2C_MEM_TIMEOUT_ms);
+		if (status != HAL_OK) {
+			break;
+		}
+		status = HAL_I2C_Mem_Read(&hi2c1, I2C_EEPROM_ADDR_r, I2C_MEM_ADDRESS, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&CfgBuffer, sizeof(CfgBuffer), I2C_MEM_TIMEOUT_ms);
+		if (status != HAL_OK) {
+			break;
+		}
+		if (CfgBuffer.magic[0] != CfgDefault.magic[0] 
+			|| CfgBuffer.magic[1] != CfgDefault.magic[1]
+			|| CfgBuffer.major != CfgDefault.major
+			|| CfgBuffer.minor != CfgDefault.minor)
+		{
+			memcpy(&CfgBuffer, &CfgDefault, sizeof(CfgDef));
+		}
+		for (uint16_t index = 0; index < NUM_OF_SERVO; index++)
+		{
+			Servo[index].PutPosition = CfgBuffer.PutPosition[index];
+		}
+	} while(0);
+	return status;
 }
 
 /**
@@ -370,7 +443,7 @@ static void cmdLock(CommandBufferDef *cmd)
 }
 
 /**
-  * Adjust arm position to upper angle.
+  * Adjust an arm position to upper angle.
   */
 static void cmdUp(CommandBufferDef *cmd)
 {
@@ -392,7 +465,7 @@ static void cmdUp(CommandBufferDef *cmd)
 }
 
 /**
-  * Adjust arm position to lower angle.
+  * Adjust an arm position to lower angle.
   */
 static void cmdDown(CommandBufferDef *cmd)
 {
@@ -410,6 +483,33 @@ static void cmdDown(CommandBufferDef *cmd)
 	int16_t index = BeamStack[0];
 	AdjustPutPosition(index, +SERVO_ADJUST_STEP);
 	moveServo(index, Servo[index].PutPosition);
+	PutStr("\r\n");
+}
+
+/**
+  * Save all adjusted positions to the EEPROM.
+	*
+	* SAVE
+  */
+static void cmdSave(CommandBufferDef *cmd)
+{
+	PutStr("SAVE ");
+	CfgSave();
+	PutStr("\r\n");
+}
+
+/**
+  * Reset all adjusted positions to default value.
+	*
+	* INIT
+  */
+static void cmdInit(CommandBufferDef *cmd)
+{
+	PutStr("INIT ");
+	for (uint16_t index = 0; index < NUM_OF_SERVO; index++)
+	{
+		Servo[index].PutPosition = CfgDefault.PutPosition[index];
+	}
 	PutStr("\r\n");
 }
 
@@ -432,7 +532,7 @@ static void cmdNeutral(CommandBufferDef *cmd)
 /**
   * Put a card on the RF antenna.
 	*
-	* PUTON <A/B/C/D>
+	* PUTON <A/B/C/D/R>
   */
 static void cmdPutOn(CommandBufferDef *cmd)
 {
@@ -459,6 +559,9 @@ static void cmdPutOn(CommandBufferDef *cmd)
 	{
 		pos -= 3 * BeamPtr;
 	}
+	PutStr("PUTON ");
+	PutStr(Servo[index].name);
+	PutStr("\r\n");
 	moveServo(index, pos);
 	PushBeam(index);
 }
@@ -496,8 +599,10 @@ static void cmdHelp(CommandBufferDef *cmd)
 	PutStr("TAKEOFF\r\n  Take a card or the Reader from the target.\r\n");
 	PutStr("CLEAR\r\n  Take all cards and the Reader from the target.\r\n");
 	PutStr("LOCK\r\n  Lock all arms except R to flat position.\r\n");
-	PutStr("UP\r\n  Adjust arm position to upper angle.\r\n");
-	PutStr("DOWN\r\n   Adjust arm position to lower angle.\r\n");
+	PutStr("UP\r\n  Adjust an arm position to upper angle.\r\n");
+	PutStr("DOWN\r\n  Adjust an arm position to lower angle.\r\n");
+	PutStr("SAVE\r\n  Save all adjusted positions to the EEPROM.\r\n");
+	PutStr("INIT\r\n  Reset all adjusted positions to default value.\r\n");
 	PutStr("NEUTRAL\r\n  Move all servo motors to neutral position.\r\n");
 }
 
@@ -505,6 +610,8 @@ void StartMotorThread(void const * argument)
 {
 	osEvent evt;
 	CommandBufferDef *cmdBuf;
+	
+	CfgLoad();
 	for (int16_t s = 0; s < NUM_OF_SERVO; s++)
 	{
 		HAL_TIM_PWM_Start_IT(Servo[s].htim_base, Servo[s].channel);
