@@ -245,7 +245,7 @@ static HAL_StatusTypeDef CfgSave(void)
 		if (status != HAL_OK) {
 			break;
 		}
-		status = HAL_I2C_Mem_Write(&hi2c1, EEPROM_I2C_ADDR_w, EEPROM_MEM_ADDR, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&CfgBuffer, sizeof(CfgDef), EEPROM_I2C_TIMEOUT_ms);
+		status = HAL_I2C_Mem_Write(&hi2c1, EEPROM_I2C_ADDR_w, EEPROM_MEM_ADDR, I2C_MEMADD_SIZE_16BIT, (uint8_t *)&CfgBuffer, sizeof(CfgDef), EEPROM_I2C_TIMEOUT_ms);
 		HAL_Delay(30);
 	} while(0);
 	return status;
@@ -260,7 +260,7 @@ static HAL_StatusTypeDef CfgLoad(void)
 		if (status != HAL_OK) {
 			break;
 		}
-		status = HAL_I2C_Mem_Read(&hi2c1, EEPROM_I2C_ADDR_r, EEPROM_MEM_ADDR, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&CfgBuffer, sizeof(CfgDef), EEPROM_I2C_TIMEOUT_ms);
+		status = HAL_I2C_Mem_Read(&hi2c1, EEPROM_I2C_ADDR_r, EEPROM_MEM_ADDR, I2C_MEMADD_SIZE_16BIT, (uint8_t *)&CfgBuffer, sizeof(CfgDef), EEPROM_I2C_TIMEOUT_ms);
 		if (status != HAL_OK) {
 			break;
 		}
