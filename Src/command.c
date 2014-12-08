@@ -370,6 +370,7 @@ static void moveServo(int16_t index, uint32_t goal)
 
 	while (servo->position != goal)
 	{
+		PutUint16(servo->position);		// print position if debug is enabled
 		osDelay(SERVO_PERIOD_MS);
 	}
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
