@@ -18,7 +18,7 @@
 #define MSG_ALRELADY_PUT "Already put on.\r\n"
 #define MSG_NOT_CLEAR "Not cleared. Reader can put only if no cards were put on.\r\n"
 #define MSG_BEAM_EMPTY "No beam is put on.\r\n"
-#define MSG_ALREADY_LOCKED "Warning! Already Locked.\r\nPlease RESET and Lock again.\r\n"
+#define MSG_ALREADY_LOCKED "Warning! Already Locked.\r\n"
 #define MSG_BEAM_TOO_MANY "Only one beam should be put on.\r\n"
 
 #define EEPROM_I2C_ADDR_w (0xA0)
@@ -382,6 +382,11 @@ static void moveServo(int16_t index, uint32_t goal)
   */
 static void cmdClear(CommandBufferDef *cmd)
 {
+	if (flag_locked)
+	{
+		PutStr(MSG_ALREADY_LOCKED);
+		return;
+	}
 	// set beam stack by order of position
 	RescanPosition();
 	BeamPtr = 0;
@@ -520,6 +525,11 @@ static void cmdInit(CommandBufferDef *cmd)
   */
 static void cmdNeutral(CommandBufferDef *cmd)
 {
+	if (flag_locked)
+	{
+		PutStr(MSG_ALREADY_LOCKED);
+		return;
+	}
 	cmdClear(NULL);
 	PutStr("NEUTRAL ");
 	for (uint16_t index = 0; index < NUM_OF_SERVO; index++)
@@ -577,6 +587,11 @@ static void cmdTakeOff(CommandBufferDef *cmd)
 {
 	if (cmd->Arg != NULL) {
 		PutStr(MSG_INVALID_PARAMETER);
+		return;
+	}
+	if (flag_locked)
+	{
+		PutStr(MSG_ALREADY_LOCKED);
 		return;
 	}
 	int16_t index = PopBeam();
