@@ -442,7 +442,7 @@ static void cmdLock(CommandBufferDef *cmd)
 	{
 		PutChr(Servo[index].name[0]);
 		PutChr(' ');
-		moveServo(index, CARD_PUT_POS);
+		moveServo(index, Servo[index].PutPosition);
 		PushBeam(index);
 	}
 	PutStr("\r\n");
